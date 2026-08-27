@@ -27,6 +27,56 @@ Este documento registra las decisiones del TFM y su estado para mantener la traz
 - Se plantea una arquitectura en la que SQL Server proporcione los datos, un componente analítico realice las transformaciones y detección, N8N realice la orquestación y GPT genere explicaciones en lenguaje natural.
 - Las decisiones arquitectónicas anteriores no son definitivas.
 
+## Resultados experimentales — estado provisional
+
+### Baseline B30 como candidata preferente
+
+- **Evidencia:** Las evaluaciones temporales compararon A, B30 y B50. B30 mostró mejor comportamiento descriptivo que A y un mayor uso del contexto que B50, manteniendo el fallback al baseline por vehículo cuando el contexto no alcanza 30 observaciones.
+- **Interpretación:** B30 es actualmente la candidata preferente entre las estrategias experimentadas.
+- **Estado:** Decisión metodológica provisional; no constituye la selección definitiva del baseline.
+
+### Dependencia respecto al rango de distancia
+
+- **Evidencia:** Las medianas y distribuciones de L/100 km varían por rango de distancia dentro de los vehículos. Los análisis de desviación relativa y robust_z muestran una mayor frecuencia relativa de valores elevados en trayectos cortos.
+- **Interpretación:** La distancia aporta contexto relevante para representar el comportamiento habitual del consumo.
+- **Estado:** Evidencia experimental; no se adopta todavía una regla definitiva de tratamiento de la distancia.
+
+### Sensibilidad a una distancia mínima evaluable
+
+- **Evidencia:** Al aumentar el umbral mínimo de distancia se reducen los valores extremos del KPI y de las desviaciones, pero también se descarta una proporción significativa de los registros evaluables.
+- **Interpretación:** Existe un compromiso entre estabilidad del KPI y cobertura de datos.
+- **Estado:** No se adopta un filtro mínimo de distancia como criterio de exclusión global.
+
+### Viabilidad del cálculo MAD sobre B30
+
+- **Evidencia:** En la evaluación de 2026 se calcularon medidas MAD para los 6.665 registros evaluables con B30; no se produjeron casos con MAD igual a cero.
+- **Interpretación:** La escala robusta basada en MAD pudo calcularse en el experimento sin divisiones por cero.
+- **Estado:** Evidencia experimental; su uso forma parte de la investigación y no de un detector definitivo.
+
+### Cola extrema de robust_z y distancia
+
+- **Evidencia:** Los grupos de robust_z elevado tienen una presencia relativa mayor en trayectos de hasta 1 km que el conjunto completo evaluable. Los grupos extremos también contienen registros de rangos de distancia superiores.
+- **Interpretación:** Los valores extremos no están exclusivamente asociados a trayectos cortos.
+- **Estado:** Evidencia descriptiva; no permite asignar una causa ni una clasificación definitiva a los registros.
+
+### Ausencia de ground truth de ineficiencia
+
+- **Evidencia:** Los análisis disponibles describen desviaciones respecto a referencias históricas, pero no existe una variable que confirme qué registros representan ineficiencias reales.
+- **Interpretación:** Ningún registro puede considerarse todavía una ineficiencia real a partir de estos experimentos.
+- **Estado:** Limitación confirmada para la evaluación metodológica.
+
+### Umbral de robust_z y regla de clasificación
+
+- **Evidencia:** Se analizaron puntos de comparación de robust_z, incluidos valores superiores a 1, 2, 3, 4, 5 y grupos de cola más extrema, sin convertirlos en alertas.
+- **Interpretación:** Las distribuciones observadas no justifican por sí mismas seleccionar un umbral estadístico concreto.
+- **Estado:** No existe todavía un umbral definitivo de robust_z ni una regla definitiva de clasificación.
+
+### Siguiente paso metodológico
+
+- **Evidencia:** Los experimentos permiten construir un baseline contextual B30 y calcular medidas robustas de desviación sobre 2026.
+- **Interpretación:** El siguiente paso será diseñar y evaluar un detector de posibles ineficiencias que combine el baseline contextual y medidas robustas de desviación.
+- **Estado:** Pendiente de evaluación; no se asumirá todavía que un umbral estadístico concreto sea correcto.
+
 ## Información proporcionada
 
 - Según información proporcionada por el responsable del proyecto, los datos de 2026 se consideran más fiables debido a la evolución de los dispositivos o del sistema de medición. Esta afirmación se registra como información proporcionada sobre los datos y no como un hecho estadístico demostrado.
