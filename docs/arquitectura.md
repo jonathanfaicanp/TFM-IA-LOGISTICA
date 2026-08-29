@@ -17,6 +17,24 @@ La capa analítica reutilizable mantiene un flujo local y desacoplado de integra
 - **Ausencia de causalidad:** ninguna de las dos señales identifica ni confirma el motivo de una desviación.
 - **Integraciones posteriores:** N8N y GPT quedan fuera del detector v1 y corresponden a fases posteriores de orquestación y explicación.
 
+### Consolidación de señales
+
+Los resultados independientes de consumo y comportamiento temporal se entregan a una capa de consolidación que no modifica sus cálculos:
+
+`DetectorV1 + TemporalDetectorV1 -> consolidación -> API`
+
+El contrato consolidado contiene la identidad del viaje, `overall_status`, `analysis_coverage`, las señales en revisión y los resultados estructurados originales bajo `signals.consumption` y `signals.temporal`.
+
+- `overall_status` es `REVIEW` si cualquier señal está en revisión; es `NO_RELEVANT_DEVIATION` si ninguna está en revisión y al menos una es evaluable; y es `NOT_EVALUABLE` cuando ninguna señal es evaluable.
+- `analysis_coverage` es `COMPLETE` cuando ambas señales son evaluables, `PARTIAL` cuando sólo una es evaluable y `NONE` cuando ninguna lo es.
+- `review_signals` incluye exclusivamente los nombres de las señales cuyo estado individual es `REVIEW`.
+
+### Frontera HTTP
+
+La API FastAPI constituye la frontera estable entre la capa Python y futuros consumidores. Expone `GET /health` y `POST /evaluate`. Los detectores se inicializan una vez con el histórico al arrancar el servicio; la ruta local puede configurarse mediante `TFM_DATA_PATH` y no se envía el histórico en cada petición.
+
+La API valida únicamente datos de entrada del viaje. Los estados, cobertura, referencias históricas, puntuaciones robustas y decisiones de revisión siempre son calculados internamente. La detección y la futura explicación permanecen separadas: ni la API ni futuros componentes N8N/GPT sustituyen las decisiones analíticas de los detectores. La integración con N8N/GPT no está implementada todavía.
+
 ## Decisiones provisionales
 
 - La interfaz pública inicial se implementa como módulos Python en `src/`, sin servicios externos ni capas adicionales.

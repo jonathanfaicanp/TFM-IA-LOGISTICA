@@ -139,3 +139,13 @@ Las decisiones registradas pueden cambiar durante la investigación. Cualquier c
 - **Alcance de las métricas:** Estas métricas proceden de perturbaciones temporales artificiales controladas y no representan rendimiento frente a ineficiencias reales.
 - **Semántica:** `REVIEW` identifica una desviación temporal a revisar. No confirma ineficiencias ni permite atribuir una explicación concreta al comportamiento observado.
 - **Estado:** Decisión metodológica confirmada para la primera versión del detector temporal.
+
+## Decisión confirmada — Consolidación de resultados analíticos
+
+- Los detectores de consumo y comportamiento temporal son las fuentes de verdad analítica y conservan íntegramente sus resultados individuales en la salida consolidada.
+- `overall_status` será `REVIEW` si cualquier señal está en revisión; será `NO_RELEVANT_DEVIATION` si ninguna está en revisión y al menos una es evaluable; y será `NOT_EVALUABLE` si ambas son no evaluables.
+- `analysis_coverage` será `COMPLETE` cuando ambas señales sean evaluables, `PARTIAL` cuando exactamente una sea no evaluable y `NONE` cuando ambas sean no evaluables.
+- `review_signals` contendrá exclusivamente las señales individuales con estado `REVIEW`.
+- La API constituye una frontera de acceso a la capa analítica y no decide estados, cobertura ni revisiones.
+- GPT no decidirá desviaciones analíticas. Una futura capa de explicación podrá describir resultados ya calculados, pero no sustituir ni alterar las decisiones de los detectores.
+- La integración con N8N o GPT permanece como fase posterior y no se registra todavía como implementada.
