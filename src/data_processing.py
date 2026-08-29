@@ -1,11 +1,11 @@
-"""Parsing and unit normalization for consumption trips."""
+"""Parsing and unit normalization for consumption and temporal signals."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Mapping
 
-from .models import NormalizedTrip
+from .models import NormalizedTemporalTrip, NormalizedTrip
 
 
 DISTANCE_RANGES = (
@@ -58,5 +58,35 @@ def normalize_trip(row: Mapping[str, object]) -> NormalizedTrip:
     return NormalizedTrip(
         **common,
         consumo_l_100km=consumption_liters / distance_km * 100,
+        distance_range=distance_range(distance_km),
+    )
+
+
+def normalize_temporal_trip(row: Mapping[str, object]) -> NormalizedTemporalTrip:
+    start = datetime.fromisoformat(str(row["Fecha de inicio"]).strip())
+    distance_km = parse_number(row["Distancia"]) / 1000
+    duration_minutes = parse_number(row["Duracion"]) / 60
+    common = {
+        "codigo_viaje": str(row["Codigo Viaje"]) if row.get("Codigo Viaje") is not None else None,
+        "codigo_vehiculo": str(row["Codigo Vehiculo"]),
+        "fecha": start.isoformat(sep=" "),
+        "year": start.year,
+        "distancia_km": distance_km,
+        "duration_minutes": duration_minutes,
+    }
+    if duration_minutes <= 0:
+        return NormalizedTemporalTrip(**common, minutes_per_km=None, distance_range=None, validation_reason="NON_POSITIVE_DURATION")
+    if distance_km <= 0:
+        return NormalizedTemporalTrip(**common, minutes_per_km=None, distance_range=None, validation_reason="NON_POSITIVE_DISTANCE")
+    if distance_km <= 1:
+        return NormalizedTemporalTrip(
+            **common,
+            minutes_per_km=duration_minutes / distance_km,
+            distance_range=distance_range(distance_km),
+            validation_reason="DISTANCE_NOT_ABOVE_1_KM",
+        )
+    return NormalizedTemporalTrip(
+        **common,
+        minutes_per_km=duration_minutes / distance_km,
         distance_range=distance_range(distance_km),
     )

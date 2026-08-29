@@ -117,13 +117,25 @@ Las decisiones registradas pueden cambiar durante la investigación. Cualquier c
 - Se utilizarán 100 registros históricos válidos como criterio inicial para construir el *baseline* de cada vehículo.
 - Este criterio podrá revisarse después de evaluar la estabilidad del *baseline*.
 
-## Decisión metodológica provisional — Detector v1
+## Decisión definitiva — Detector de consumo v1
 
 - **Baseline seleccionado:** B30, definido por vehículo y rango de distancia cuando el contexto dispone de un mínimo de 30 observaciones, con *fallback* al *baseline* del vehículo cuando no se alcanza ese mínimo.
 - **Medida robusta seleccionada:** mediana y MAD calculadas exclusivamente sobre el histórico.
-- **Regla candidata principal:** desviación relativa > 50 % AND `robust_z` > 2.
-- **Justificación experimental:** En el *benchmark* semi-sintético, la regla marcó el 10,35 % del conjunto de control no perturbado. El *recall* sintético fue del 21,32 % para una perturbación de +25 %, del 48,49 % para +50 %, del 83,15 % para +100 %, del 93,20 % para +200 % y del 98,44 % para +500 %.
-- **Alcance de las métricas:** El conjunto de control no perturbado no constituye un *ground truth* negativo real, ya que no dispone de validación empresarial que descarte ineficiencias. Estas métricas evalúan exclusivamente la respuesta del detector ante perturbaciones artificiales y controladas del consumo; no representan directamente su rendimiento ante ineficiencias reales.
-- **Interpretación de la salida:** Todo caso marcado deberá interpretarse como «desviación a revisar» y no como «ineficiencia confirmada».
-- **Comparadores conservados:** Las reglas D1 con desviación relativa > 50 % y D3 OR con desviación relativa > 50 % o `robust_z` > 2 se conservarán como comparadores durante la evaluación final.
-- **Estado:** Selección metodológica provisional para el detector v1. La decisión podrá revisarse si la evaluación final evidencia problemas operativos o metodológicos.
+- **Regla seleccionada:** desviación relativa > 50 % AND `robust_z` > 2.
+- **Benchmark definitivo alineado:** Sobre 6.427 registros evaluables, la regla marcó el 10,14 % del conjunto de control y obtuvo una especificidad experimental del 89,86 %. El *recall* fue del 21,44 % para una perturbación de +25 %, del 48,87 % para +50 %, del 82,70 % para +100 %, del 92,95 % para +200 % y del 98,38 % para +500 %.
+- **Alcance de las métricas:** Estas cifras proceden de perturbaciones semi-sintéticas y de un control experimental. No representan precisión, sensibilidad ni especificidad frente a ineficiencias reales. El conjunto de control no constituye un *ground truth* negativo empresarial.
+- **Interpretación de la salida:** Todo caso marcado deberá interpretarse únicamente como «desviación a revisar».
+- **Estado:** Decisión metodológica definitiva para la primera versión del detector de consumo.
+
+## Decisión confirmada — DetectorTemporalV1
+
+- **Interpretación:** «desviación temporal respecto al comportamiento histórico del vehículo en viajes de distancia comparable».
+- **Variable:** `minutes_per_km`, calculada como duración en minutos dividida por distancia en kilómetros.
+- **Elegibilidad:** La señal temporal v1 se limita a viajes de 2026 con duración positiva, distancia superior a 1 km y vehículo con al menos 100 observaciones históricas válidas en 2024-2025.
+- Los viajes de hasta 1 km quedan fuera porque `minutes_per_km` presenta en ese rango un régimen estadístico claramente más inestable, con dispersión, percentiles extremos y porcentajes de superación superiores. Esta exclusión no implica que dichos registros sean inválidos.
+- **Baseline:** B30 por vehículo y rango de distancia cuando existen al menos 30 observaciones históricas, con *fallback* al baseline del vehículo; se utilizan mediana y MAD históricas.
+- **Regla seleccionada:** desviación relativa > 50 % AND `robust_z` > 2.
+- **Benchmark semi-sintético:** Sobre 9.644 casos evaluables, la regla marcó el 13,03 % del control experimental y obtuvo una especificidad experimental del 86,97 %. El *recall* fue del 24,83 % para una perturbación de +25 %, del 40,18 % para +50 %, del 65,84 % para +100 %, del 87,33 % para +200 % y del 98,66 % para +500 %.
+- **Alcance de las métricas:** Estas métricas proceden de perturbaciones temporales artificiales controladas y no representan rendimiento frente a ineficiencias reales.
+- **Semántica:** `REVIEW` identifica una desviación temporal a revisar. No confirma ineficiencias ni permite atribuir una explicación concreta al comportamiento observado.
+- **Estado:** Decisión metodológica confirmada para la primera versión del detector temporal.

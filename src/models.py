@@ -27,6 +27,19 @@ class NormalizedTrip:
 
 
 @dataclass(frozen=True)
+class NormalizedTemporalTrip:
+    codigo_viaje: str | None
+    codigo_vehiculo: str
+    fecha: str
+    year: int
+    distancia_km: float
+    duration_minutes: float | None
+    minutes_per_km: float | None
+    distance_range: str | None
+    validation_reason: str | None = None
+
+
+@dataclass(frozen=True)
 class BaselineStats:
     baseline: float
     mad: float
@@ -45,6 +58,30 @@ class DetectionResult:
     distancia_km: float | None
     consumo_litros: float | None
     consumo_l_100km: float | None
+    baseline: float | None
+    relative_deviation: float | None
+    mad: float | None
+    robust_z: float | None
+    baseline_type: str | None
+    historical_observations: int | None
+    distance_range: str | None
+
+    def to_dict(self) -> dict[str, Any]:
+        result = asdict(self)
+        result["status"] = self.status.value
+        return result
+
+
+@dataclass(frozen=True)
+class TemporalDetectionResult:
+    codigo_viaje: str | None
+    codigo_vehiculo: str
+    fecha: str
+    status: DetectionStatus
+    reason: str
+    distancia_km: float
+    duration_minutes: float | None
+    minutes_per_km: float | None
     baseline: float | None
     relative_deviation: float | None
     mad: float | None

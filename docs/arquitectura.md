@@ -4,15 +4,17 @@ Este documento describirá la arquitectura del proyecto cuando existan decisione
 
 ## Decisiones confirmadas
 
-La primera implementación reutilizable mantiene un flujo local y desacoplado de integraciones externas:
+La capa analítica reutilizable mantiene un flujo local y desacoplado de integraciones externas:
 
-`datos -> preparación -> baseline B30 -> detector v1 -> salida estructurada`
+`datos -> preparación -> baselines B30 -> detectores v1 -> salidas estructuradas`
 
-- **Preparación:** normaliza tipos y fechas, convierte distancia y consumo a kilómetros y litros, calcula L/100 km y asigna el rango de distancia.
-- **Baseline B30:** se construye exclusivamente con registros históricos válidos de 2024 y 2025. Exige al menos 100 observaciones por vehículo y utiliza mediana y MAD del contexto vehículo-rango cuando existen al menos 30 observaciones; en caso contrario, utiliza el *fallback* del vehículo.
-- **Detector v1:** evalúa registros de 2026 con consumo y distancia positivos. Analiza únicamente desviaciones de consumo mediante la regla desviación relativa > 50 % AND `robust_z` > 2.
-- **Salida estructurada:** devuelve datos normalizados, referencia histórica, medidas de desviación, tipo de *baseline*, estado y motivo. La estructura puede serializarse posteriormente a JSON, pero no constituye todavía una API.
-- **Semántica:** `REVIEW` significa «desviación a revisar», no «ineficiencia confirmada».
+- **Preparación común:** normaliza tipos y fechas, convierte unidades, asigna el rango de distancia y calcula el indicador correspondiente a cada señal.
+- **Baselines B30:** se construyen exclusivamente con registros históricos válidos de 2024 y 2025. Exigen al menos 100 observaciones por vehículo y utilizan mediana y MAD del contexto vehículo-rango cuando existen al menos 30 observaciones; en caso contrario, utilizan el *fallback* del vehículo.
+- **Señal de consumo:** `DetectorV1` evalúa registros de 2026 con consumo y distancia positivos mediante L/100 km y la regla desviación relativa > 50 % AND `robust_z` > 2.
+- **Señal temporal:** `TemporalDetectorV1` evalúa registros de 2026 con duración positiva y distancia superior a 1 km mediante `minutes_per_km` y la regla desviación relativa > 50 % AND `robust_z` > 2. Los viajes de hasta 1 km producen `NOT_EVALUABLE` para esta señal, sin considerarse datos inválidos por ese motivo.
+- **Salidas estructuradas independientes:** cada detector devuelve sus propios datos normalizados, referencia histórica, medidas de desviación, tipo de *baseline*, estado y motivo. Las estructuras pueden serializarse posteriormente a JSON, pero no constituyen todavía una API externa.
+- **Semántica:** `REVIEW` significa únicamente «desviación a revisar».
+- **Ausencia de causalidad:** ninguna de las dos señales identifica ni confirma el motivo de una desviación.
 - **Integraciones posteriores:** N8N y GPT quedan fuera del detector v1 y corresponden a fases posteriores de orquestación y explicación.
 
 ## Decisiones provisionales

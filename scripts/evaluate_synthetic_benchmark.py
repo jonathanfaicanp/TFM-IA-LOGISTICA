@@ -8,11 +8,18 @@ from __future__ import annotations
 
 import argparse
 import csv
+import sys
+from collections import Counter
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from analyze_b30_mad import build_scopes, robust_z, select_b30_scope
 from compare_baselines import RANGES, distance_range, number, parse_number, parse_start_date, write_csv
 from evaluate_detector_candidates import relative_deviation, rule_and, rule_or
+from src.baseline import MINIMUM_VEHICLE_OBSERVATIONS
 
 
 PERTURBATIONS = (.25, .50, 1.0, 2.0, 5.0)
@@ -84,10 +91,22 @@ def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
 
 
 def prepare_evaluation(history: list[dict], evaluation: list[dict]) -> list[dict]:
-    compact_history = [{key: record[key] for key in ("vehicle", "range", "l_100km")} for record in history]
+    history_counts = Counter(record["vehicle"] for record in history)
+    eligible_vehicles = {
+        vehicle
+        for vehicle, count in history_counts.items()
+        if count >= MINIMUM_VEHICLE_OBSERVATIONS
+    }
+    compact_history = [
+        {key: record[key] for key in ("vehicle", "range", "l_100km")}
+        for record in history
+        if record["vehicle"] in eligible_vehicles
+    ]
     vehicles, contexts = build_scopes(compact_history)
     prepared = []
     for record in evaluation:
+        if record["vehicle"] not in eligible_vehicles:
+            continue
         scope = select_b30_scope(record, vehicles, contexts)
         if scope is None:
             continue
