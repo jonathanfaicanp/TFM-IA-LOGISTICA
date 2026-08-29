@@ -50,6 +50,15 @@ class SyntheticBenchmarkTests(unittest.TestCase):
         self.assertEqual(before[0]["1"][1], 1.0)
         self.assertEqual(after[0]["1"][1:], before[0]["1"][1:])
 
+    def test_vehicle_below_100_historical_records_is_excluded(self):
+        history = self._history()[:99]
+        prepared = prepare_evaluation(history, [self._evaluation_record()])
+        self.assertEqual(prepared, [])
+
+    def test_vehicle_at_100_historical_records_is_evaluable(self):
+        prepared = prepare_evaluation(self._history(), [self._evaluation_record()])
+        self.assertEqual(len(prepared), 1)
+
     def test_simple_known_detection(self):
         self.assertTrue(apply_rule(.51, None, "D1", .5, None, None))
         self.assertTrue(apply_rule(.51, 2.1, "D3", .5, 2.0, "AND"))
@@ -96,7 +105,7 @@ class SyntheticBenchmarkTests(unittest.TestCase):
     def _history():
         return [
             {"vehicle": "1", "range": "<= 1", "l_100km": value}
-            for value in (9.0, 10.0, 11.0)
+            for value in ((9.0, 10.0, 11.0) * 33 + (10.0,))
         ]
 
     @staticmethod
