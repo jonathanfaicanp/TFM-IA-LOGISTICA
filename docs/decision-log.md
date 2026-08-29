@@ -116,3 +116,14 @@ Las decisiones registradas pueden cambiar durante la investigación. Cualquier c
 
 - Se utilizarán 100 registros históricos válidos como criterio inicial para construir el *baseline* de cada vehículo.
 - Este criterio podrá revisarse después de evaluar la estabilidad del *baseline*.
+
+## Decisión metodológica provisional — Detector v1
+
+- **Baseline seleccionado:** B30, definido por vehículo y rango de distancia cuando el contexto dispone de un mínimo de 30 observaciones, con *fallback* al *baseline* del vehículo cuando no se alcanza ese mínimo.
+- **Medida robusta seleccionada:** mediana y MAD calculadas exclusivamente sobre el histórico.
+- **Regla candidata principal:** desviación relativa > 50 % AND `robust_z` > 2.
+- **Justificación experimental:** En el *benchmark* semi-sintético, la regla marcó el 10,35 % del conjunto de control no perturbado. El *recall* sintético fue del 21,32 % para una perturbación de +25 %, del 48,49 % para +50 %, del 83,15 % para +100 %, del 93,20 % para +200 % y del 98,44 % para +500 %.
+- **Alcance de las métricas:** El conjunto de control no perturbado no constituye un *ground truth* negativo real, ya que no dispone de validación empresarial que descarte ineficiencias. Estas métricas evalúan exclusivamente la respuesta del detector ante perturbaciones artificiales y controladas del consumo; no representan directamente su rendimiento ante ineficiencias reales.
+- **Interpretación de la salida:** Todo caso marcado deberá interpretarse como «desviación a revisar» y no como «ineficiencia confirmada».
+- **Comparadores conservados:** Las reglas D1 con desviación relativa > 50 % y D3 OR con desviación relativa > 50 % o `robust_z` > 2 se conservarán como comparadores durante la evaluación final.
+- **Estado:** Selección metodológica provisional para el detector v1. La decisión podrá revisarse si la evaluación final evidencia problemas operativos o metodológicos.
