@@ -103,6 +103,15 @@ Este documento registra las decisiones del TFM y su estado para mantener la traz
 
 Las decisiones registradas pueden cambiar durante la investigación. Cualquier cambio posterior debe registrarse en este documento, indicando su estado y la información o evidencia que lo justifica.
 
+## Decisión confirmada — Origen de datos del histórico
+
+- SQL Server y `dbo.WF_OPERATIVA_CAMIONES` constituyen la fuente operacional del histórico en el entorno empresarial.
+- El repositorio SQL realiza exclusivamente lectura de las columnas requeridas y limita el histórico al intervalo `[2024-01-01, 2026-01-01)` mediante parámetros SQL.
+- CSV permanece disponible y es el origen predeterminado para desarrollo y pruebas; su ruta continúa configurándose mediante `TFM_DATA_PATH`.
+- La selección entre `csv` y `sql` se configura con `TFM_DATA_SOURCE`.
+- Las credenciales y datos de conexión se proporcionan externamente mediante variables de entorno y no se versionan.
+- Esta decisión afecta únicamente a la adquisición del histórico. No cambia reglas, umbrales, baselines, consolidación ni ningún otro comportamiento analítico de `DetectorV1` o `TemporalDetectorV1`.
+
 ## Decisión confirmada — División temporal del experimento
 
 - El baseline inicial del detector se construirá utilizando los registros correspondientes a 2024 y 2025.

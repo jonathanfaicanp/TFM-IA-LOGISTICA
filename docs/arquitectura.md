@@ -35,6 +35,12 @@ La API FastAPI constituye la frontera estable entre la capa Python y futuros con
 
 La API valida únicamente datos de entrada del viaje. Los estados, cobertura, referencias históricas, puntuaciones robustas y decisiones de revisión siempre son calculados internamente. La detección y la futura explicación permanecen separadas: ni la API ni futuros componentes N8N/GPT sustituyen las decisiones analíticas de los detectores. La integración con N8N/GPT no está implementada todavía.
 
+### Origen del histórico
+
+El arranque selecciona el origen mediante `TFM_DATA_SOURCE`: `csv` (valor por defecto) conserva `TFM_DATA_PATH` para desarrollo y pruebas, mientras que `sql` obtiene de SQL Server únicamente los registros de 2024 y 2025 necesarios para construir los detectores. El acceso SQL está aislado en un repositorio de solo lectura y utiliza consultas parametrizadas con columnas explícitas.
+
+SQL Server será la fuente operacional en el entorno empresarial. Su servidor, base de datos, usuario, contraseña y controlador ODBC se suministran externamente mediante `TFM_DB_SERVER`, `TFM_DB_DATABASE`, `TFM_DB_USER`, `TFM_DB_PASSWORD` y, opcionalmente, `TFM_DB_DRIVER`. No se almacenan credenciales en el repositorio. La elección del origen solo cambia la carga del histórico y no modifica la normalización, los baselines, los umbrales, la consolidación ni la lógica de los detectores.
+
 ## Decisiones provisionales
 
 - La interfaz pública inicial se implementa como módulos Python en `src/`, sin servicios externos ni capas adicionales.
