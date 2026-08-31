@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
@@ -13,10 +14,28 @@ from pydantic import BaseModel, ConfigDict
 from .analytical_service import AnalyticalService
 from .consolidation import AnalysisCoverage
 from .models import DetectionStatus
+from .sql_repository import SqlHistoricalRepository
 
 
 DEFAULT_DATA_PATH = Path("data/datos_operativa.csv")
 DATA_PATH_ENVIRONMENT_VARIABLE = "TFM_DATA_PATH"
+DATA_SOURCE_ENVIRONMENT_VARIABLE = "TFM_DATA_SOURCE"
+
+
+def build_analytical_service(environment: Mapping[str, str] | None = None) -> AnalyticalService:
+    values = os.environ if environment is None else environment
+    data_source = values.get(DATA_SOURCE_ENVIRONMENT_VARIABLE, "csv").strip().lower()
+    if data_source == "csv":
+        return AnalyticalService.from_csv(
+            Path(values.get(DATA_PATH_ENVIRONMENT_VARIABLE, DEFAULT_DATA_PATH))
+        )
+    if data_source == "sql":
+        rows = SqlHistoricalRepository.from_environment(values).load_historical_rows()
+        return AnalyticalService.from_history(rows)
+    raise ValueError(
+        f"Valor no válido para {DATA_SOURCE_ENVIRONMENT_VARIABLE}: {data_source!r}. "
+        "Los valores admitidos son 'csv' y 'sql'."
+    )
 
 
 class EvaluationRequest(BaseModel):
@@ -61,8 +80,10 @@ def create_app(service: AnalyticalService | None = None, historical_path: Path |
         if service is not None:
             application.state.analytical_service = service
         else:
-            configured = historical_path or Path(os.environ.get(DATA_PATH_ENVIRONMENT_VARIABLE, DEFAULT_DATA_PATH))
-            application.state.analytical_service = AnalyticalService.from_csv(configured)
+            if historical_path is not None:
+                application.state.analytical_service = AnalyticalService.from_csv(historical_path)
+            else:
+                application.state.analytical_service = build_analytical_service()
         yield
 
     application = FastAPI(title="TFM Analytical Layer", version="1.0.0", lifespan=lifespan)
