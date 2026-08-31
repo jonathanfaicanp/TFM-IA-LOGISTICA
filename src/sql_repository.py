@@ -108,6 +108,14 @@ class SqlHistoricalRepository:
                 datetime(2026, 1, 1),
             )
             column_names = [description[0] for description in cursor.description]
-            return [dict(zip(column_names, row)) for row in cursor.fetchall()]
+            historical_rows = []
+            for sql_row in cursor.fetchall():
+                analytical_row = dict(zip(column_names, sql_row))
+                consumption_liters = analytical_row["Consumo"]
+                analytical_row["Consumo"] = (
+                    None if consumption_liters is None else float(consumption_liters) * 1000
+                )
+                historical_rows.append(analytical_row)
+            return historical_rows
         finally:
             connection.close()
