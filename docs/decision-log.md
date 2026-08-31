@@ -107,6 +107,7 @@ Las decisiones registradas pueden cambiar durante la investigación. Cualquier c
 
 - SQL Server y `dbo.WF_OPERATIVA_CAMIONES` constituyen la fuente operacional del histórico en el entorno empresarial.
 - El repositorio SQL realiza exclusivamente lectura de las columnas requeridas y limita el histórico al intervalo `[2024-01-01, 2026-01-01)` mediante parámetros SQL.
+- `Consumo` se almacena/proporciona en litros en la tabla SQL. `SqlHistoricalRepository` lo normaliza a mililitros (`litros × 1000`) al construir el registro que consume la capa analítica.
 - CSV permanece disponible y es el origen predeterminado para desarrollo y pruebas; su ruta continúa configurándose mediante `TFM_DATA_PATH`.
 - La selección entre `csv` y `sql` se configura con `TFM_DATA_SOURCE`.
 - Las credenciales y datos de conexión se proporcionan externamente mediante variables de entorno y no se versionan.

@@ -37,7 +37,7 @@ La API valida únicamente datos de entrada del viaje. Los estados, cobertura, re
 
 ### Origen del histórico
 
-El arranque selecciona el origen mediante `TFM_DATA_SOURCE`: `csv` (valor por defecto) conserva `TFM_DATA_PATH` para desarrollo y pruebas, mientras que `sql` obtiene de SQL Server únicamente los registros de 2024 y 2025 necesarios para construir los detectores. El acceso SQL está aislado en un repositorio de solo lectura y utiliza consultas parametrizadas con columnas explícitas.
+El arranque selecciona el origen mediante `TFM_DATA_SOURCE`: `csv` (valor por defecto) conserva `TFM_DATA_PATH` para desarrollo y pruebas, mientras que `sql` obtiene de SQL Server únicamente los registros de 2024 y 2025 necesarios para construir los detectores. El acceso SQL está aislado en un repositorio de solo lectura y utiliza consultas parametrizadas con columnas explícitas. La tabla SQL proporciona `Consumo` en litros; el repositorio lo convierte a mililitros antes de entregar cada registro, preservando así el contrato analítico existente.
 
 SQL Server será la fuente operacional en el entorno empresarial. Su servidor, base de datos, usuario, contraseña y controlador ODBC se suministran externamente mediante `TFM_DB_SERVER`, `TFM_DB_DATABASE`, `TFM_DB_USER`, `TFM_DB_PASSWORD` y, opcionalmente, `TFM_DB_DRIVER`. No se almacenan credenciales en el repositorio. La elección del origen solo cambia la carga del histórico y no modifica la normalización, los baselines, los umbrales, la consolidación ni la lógica de los detectores.
 

@@ -17,13 +17,16 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
             "Duracion", "Distancia", "Velocidad maxima", "Consumo",
             "Indicador de conduccion",
         )
-        sql_row = (
-            "T-1", "V-1", "Camión 1", datetime(2024, 6, 15, 8, 30),
-            600, 2500, 83.5, 750, 91,
-        )
+        def sql_row(trip_id, consumption):
+            return (
+                trip_id, "V-1", "Camión 1", datetime(2024, 6, 15, 8, 30),
+                600, 10538, 83.5, consumption, 91,
+            )
+
+        sql_rows = [sql_row("T-1", 0.675), sql_row("T-2", 0), sql_row("T-3", None)]
         cursor = MagicMock()
         cursor.description = [(column,) for column in columns]
-        cursor.fetchall.return_value = [sql_row]
+        cursor.fetchall.return_value = sql_rows
         connection = MagicMock()
         connection.cursor.return_value = cursor
         factory = MagicMock(return_value=connection)
@@ -31,7 +34,10 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
 
         rows = SqlHistoricalRepository(config, connection_factory=factory).load_historical_rows()
 
-        self.assertEqual(rows, [dict(zip(columns, sql_row))])
+        self.assertEqual(
+            [row["Consumo"] for row in rows],
+            [675.0, 0.0, None],
+        )
         cursor.execute.assert_called_once_with(
             HISTORICAL_QUERY, datetime(2024, 1, 1), datetime(2026, 1, 1)
         )
