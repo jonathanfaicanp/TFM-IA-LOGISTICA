@@ -69,3 +69,9 @@ No hay cuestiones de validación con datos de arquitectura documentadas todavía
 - Interfaces e integraciones.
 - Seguridad, privacidad y gestión de configuración.
 - Riesgos, limitaciones y decisiones relacionadas.
+
+## Evaluación operacional por identificador
+
+`POST /evaluate` se mantiene como endpoint analítico genérico: recibe todos los datos del viaje y continúa disponible para desarrollo, pruebas y casos sintéticos. `POST /evaluate-trip` es la integración operacional SQL: recibe únicamente `trip_id`, recupera el viaje y devuelve exactamente el mismo contrato consolidado.
+
+`/evaluate-trip` solo está disponible con `TFM_DATA_SOURCE=sql`; en modo CSV informa de forma explícita que no existe acceso operacional SQL. De este modo, N8N puede enviar únicamente el identificador. `SqlHistoricalRepository` conserva la responsabilidad exclusiva de consultar `dbo.WF_OPERATIVA_CAMIONES` mediante parámetros y normalizar `Consumo` de litros a mililitros, manteniendo los valores `NULL` como `None`, antes de invocar la capa analítica existente.

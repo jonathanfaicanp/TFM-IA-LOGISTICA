@@ -33,6 +33,27 @@ WHERE [Fecha de inicio] >= ?
   AND [Fecha de inicio] < ?
 """.strip()
 
+TRIP_BY_ID_QUERY = """
+SELECT
+    [Codigo Viaje],
+    [Codigo Vehiculo],
+    [Fecha de inicio],
+    [Distancia],
+    [Consumo],
+    [Duracion]
+FROM [dbo].[WF_OPERATIVA_CAMIONES]
+WHERE [Codigo Viaje] = ?
+""".strip()
+
+
+def _to_analytical_row(column_names: list[str], sql_row: Any) -> dict[str, object]:
+    analytical_row = dict(zip(column_names, sql_row))
+    consumption_liters = analytical_row["Consumo"]
+    analytical_row["Consumo"] = (
+        None if consumption_liters is None else float(consumption_liters) * 1000
+    )
+    return analytical_row
+
 
 @dataclass(frozen=True)
 class SqlServerConfig:
@@ -110,12 +131,22 @@ class SqlHistoricalRepository:
             column_names = [description[0] for description in cursor.description]
             historical_rows = []
             for sql_row in cursor.fetchall():
-                analytical_row = dict(zip(column_names, sql_row))
-                consumption_liters = analytical_row["Consumo"]
-                analytical_row["Consumo"] = (
-                    None if consumption_liters is None else float(consumption_liters) * 1000
-                )
-                historical_rows.append(analytical_row)
+                historical_rows.append(_to_analytical_row(column_names, sql_row))
             return historical_rows
+        finally:
+            connection.close()
+
+    def get_trip_by_id(self, trip_id: str) -> dict[str, object] | None:
+        """Return one operational trip using the analytical units contract."""
+        connection = self._connection_factory(self.config.connection_string())
+        try:
+            cursor = connection.cursor()
+            cursor.execute(TRIP_BY_ID_QUERY, trip_id)
+            sql_row = cursor.fetchone()
+            if sql_row is None:
+                return None
+
+            column_names = [description[0] for description in cursor.description]
+            return _to_analytical_row(column_names, sql_row)
         finally:
             connection.close()

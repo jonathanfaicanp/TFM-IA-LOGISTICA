@@ -5,12 +5,54 @@ from unittest.mock import MagicMock
 from src.sql_repository import (
     DEFAULT_DRIVER,
     HISTORICAL_QUERY,
+    TRIP_BY_ID_QUERY,
     SqlHistoricalRepository,
     SqlServerConfig,
 )
 
 
 class SqlHistoricalRepositoryTests(unittest.TestCase):
+    def make_trip_repository(self, row):
+        columns = (
+            "Codigo Viaje", "Codigo Vehiculo", "Fecha de inicio",
+            "Distancia", "Consumo", "Duracion",
+        )
+        cursor = MagicMock()
+        cursor.description = [(column,) for column in columns]
+        cursor.fetchone.return_value = row
+        connection = MagicMock()
+        connection.cursor.return_value = cursor
+        repository = SqlHistoricalRepository(
+            SqlServerConfig("server", "database", "user", "secret"),
+            connection_factory=MagicMock(return_value=connection),
+        )
+        return repository, cursor, connection
+
+    def test_get_trip_by_id_finds_and_normalizes_trip_with_parameterized_query(self):
+        repository, cursor, connection = self.make_trip_repository(
+            ("14214132008", "V-1", datetime(2026, 8, 1, 10), 2000, 0.675, 600)
+        )
+
+        trip = repository.get_trip_by_id("14214132008")
+
+        self.assertEqual(trip["Codigo Viaje"], "14214132008")
+        self.assertEqual(trip["Consumo"], 675.0)
+        cursor.execute.assert_called_once_with(TRIP_BY_ID_QUERY, "14214132008")
+        self.assertIn("?", TRIP_BY_ID_QUERY)
+        self.assertNotIn("14214132008", TRIP_BY_ID_QUERY)
+        connection.close.assert_called_once_with()
+
+    def test_get_trip_by_id_preserves_null_consumption(self):
+        repository, _, _ = self.make_trip_repository(
+            ("T-NULL", "V-1", datetime(2026, 8, 1), 2000, None, 600)
+        )
+        self.assertIsNone(repository.get_trip_by_id("T-NULL")["Consumo"])
+
+    def test_get_trip_by_id_returns_none_when_trip_does_not_exist(self):
+        repository, _, connection = self.make_trip_repository(None)
+        self.assertIsNone(repository.get_trip_by_id("missing"))
+        connection.close.assert_called_once_with()
+
     def test_load_historical_rows_preserves_analytical_column_contract(self):
         columns = (
             "Codigo Viaje", "Codigo Vehiculo", "Nombre Vehiculo", "Fecha de inicio",
