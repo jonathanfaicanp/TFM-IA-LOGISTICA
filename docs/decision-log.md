@@ -95,6 +95,14 @@ Este documento registra las decisiones del TFM y su estado para mantener la traz
 - Modelo GPT concreto.
 - Interfaz conversacional.
 
+## Decisión confirmada — Evaluación operacional SQL por `trip_id`
+
+- `POST /evaluate` continúa siendo el endpoint analítico genérico y recibe el contrato completo del viaje.
+- `POST /evaluate-trip` constituye la integración operacional SQL basada en el identificador y devuelve el mismo resultado consolidado; no está disponible en modo CSV.
+- N8N podrá solicitar una evaluación enviando únicamente `trip_id`.
+- `SqlHistoricalRepository` es responsable de la lectura parametrizada del viaje y de adaptar las unidades al contrato analítico, incluida la conversión de `Consumo` de litros a mililitros y la preservación de `NULL` como `None`.
+- La incorporación de esta entrada no modifica detectores, baselines, umbrales, reglas de consolidación ni el comportamiento de `/evaluate`.
+
 ## En investigación
 
 - Existen valores extremos en las variables analizadas; deberán estudiarse antes de establecer el método definitivo de detección.

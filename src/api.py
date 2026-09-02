@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 
 from .analytical_service import AnalyticalService
@@ -59,6 +59,12 @@ class EvaluationRequest(BaseModel):
         }
 
 
+class TripEvaluationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    trip_id: str
+
+
 class HealthResponse(BaseModel):
     status: str
 
@@ -74,14 +80,31 @@ class ConsolidatedResponse(BaseModel):
     signals: dict[str, dict]
 
 
-def create_app(service: AnalyticalService | None = None, historical_path: Path | None = None) -> FastAPI:
+def create_app(
+    service: AnalyticalService | None = None,
+    historical_path: Path | None = None,
+    repository: SqlHistoricalRepository | None = None,
+    data_source: str | None = None,
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(application: FastAPI):
+        configured_source = (
+            data_source
+            or ("sql" if repository is not None else os.environ.get(DATA_SOURCE_ENVIRONMENT_VARIABLE, "csv"))
+        ).strip().lower()
+        application.state.data_source = configured_source
+        application.state.trip_repository = repository
         if service is not None:
             application.state.analytical_service = service
         else:
             if historical_path is not None:
                 application.state.analytical_service = AnalyticalService.from_csv(historical_path)
+            elif configured_source == "sql":
+                sql_repository = repository or SqlHistoricalRepository.from_environment()
+                application.state.trip_repository = sql_repository
+                application.state.analytical_service = AnalyticalService.from_history(
+                    sql_repository.load_historical_rows()
+                )
             else:
                 application.state.analytical_service = build_analytical_service()
         yield
@@ -95,6 +118,27 @@ def create_app(service: AnalyticalService | None = None, historical_path: Path |
     @application.post("/evaluate", response_model=ConsolidatedResponse)
     def evaluate(payload: EvaluationRequest, request: Request) -> dict:
         result = request.app.state.analytical_service.evaluate(payload.to_source_row())
+        return result.to_dict()
+
+    @application.post("/evaluate-trip", response_model=ConsolidatedResponse)
+    def evaluate_trip(payload: TripEvaluationRequest, request: Request) -> dict:
+        if request.app.state.data_source != "sql":
+            raise HTTPException(
+                status_code=503,
+                detail="/evaluate-trip requiere acceso operacional SQL (TFM_DATA_SOURCE=sql).",
+            )
+        if request.app.state.trip_repository is None:
+            raise HTTPException(
+                status_code=503,
+                detail="El repositorio operacional SQL no está configurado.",
+            )
+        trip = request.app.state.trip_repository.get_trip_by_id(payload.trip_id)
+        if trip is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No existe el viaje con trip_id {payload.trip_id!r}.",
+            )
+        result = request.app.state.analytical_service.evaluate(trip)
         return result.to_dict()
 
     return application
