@@ -1,25 +1,25 @@
 {
   "schema_version": 1,
   "instructions": {
-    "C1": "Estado global correcto",
-    "C2": "Estados de las señales correctos",
-    "C3": "Valores y magnitudes principales fieles a los datos",
-    "C4": "No introduce causas no respaldadas",
-    "C5": "No confunde REVIEW con ineficiencia confirmada",
-    "C6": "Maneja correctamente NOT_EVALUABLE y la cobertura",
-    "allowed_C_values": [1, 0, "N/A"],
-    "claridad_utilidad_scale": [1, 2, 3, 4, 5]
+    "C1_global_status": "Estado global correcto",
+    "C2_signal_statuses": "Estados de las señales correctos",
+    "C3_numeric_fidelity": "Valores y magnitudes principales fieles a los datos",
+    "C4_no_unsupported_causes": "No introduce causas no respaldadas",
+    "C5_no_confirmed_inefficiency_claim": "No confunde REVIEW con ineficiencia confirmada",
+    "C6_not_evaluable_and_coverage": "Maneja correctamente NOT_EVALUABLE y la cobertura",
+    "allowed_criterion_values": [1, 0, null, "N/A"],
+    "clarity_utility_scale": [1, 2, 3, 4, 5, null]
   },
   "evaluation_fields": {
     "case_id": {"type": "string"},
-    "C1": {"allowed_values": [1, 0, "N/A"]},
-    "C2": {"allowed_values": [1, 0, "N/A"]},
-    "C3": {"allowed_values": [1, 0, "N/A"]},
-    "C4": {"allowed_values": [1, 0, "N/A"]},
-    "C5": {"allowed_values": [1, 0, "N/A"]},
-    "C6": {"allowed_values": [1, 0, "N/A"]},
-    "claridad_utilidad": {"allowed_values": [1, 2, 3, 4, 5]},
-    "observaciones": {"type": "string"}
+    "C1_global_status": {"allowed_values": [1, 0, null, "N/A"]},
+    "C2_signal_statuses": {"allowed_values": [1, 0, null, "N/A"]},
+    "C3_numeric_fidelity": {"allowed_values": [1, 0, null, "N/A"]},
+    "C4_no_unsupported_causes": {"allowed_values": [1, 0, null, "N/A"]},
+    "C5_no_confirmed_inefficiency_claim": {"allowed_values": [1, 0, null, "N/A"]},
+    "C6_not_evaluable_and_coverage": {"allowed_values": [1, 0, null, "N/A"]},
+    "clarity_utility": {"allowed_values": [1, 2, 3, 4, 5, null]},
+    "observations": {"allowed_types": ["string", "null"]}
   },
   "evaluations": []
 }

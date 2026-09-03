@@ -46,9 +46,32 @@ pero sustituye la identidad operacional por un identificador seudonimizado y
 elimina viaje, vehículo y fecha. Se escribe bajo `data/`, ruta ignorada por Git.
 
 La plantilla `evaluation/rubric_template.json` define C1–C6 con valores
-permitidos `1`, `0` y `N/A`, una escala `claridad_utilidad` de 1 a 5 y
-`observaciones` de texto libre. La lista comienza vacía para no introducir
-resultados ficticios.
+permitidos `1`, `0`, `null` y `N/A`, una escala `clarity_utility` de 1 a 5 o
+`null` y `observations` como texto o `null`. La lista comienza vacía para no
+introducir resultados ficticios.
+
+### Procedimiento manual de evaluación con GPT-5.6 Luna
+
+El procedimiento se ejecuta sin integrar ni invocar automáticamente al modelo:
+
+1. `evaluation/prepare_llm_evaluation.py` lee el conjunto anonimizado y genera
+   una ficha determinista por caso. Cada ficha conserva `case_id`, estrato y
+   resultado analítico, y comienza con `model`, `response` y las puntuaciones
+   manuales vacíos.
+2. La respuesta producida externamente con GPT-5.6 Luna se registra junto con
+   el nombre del modelo. Una persona asigna `1`, `0`, `null` o `N/A` a C1–C6,
+   una valoración opcional de claridad y utilidad entre 1 y 5, y observaciones
+   opcionales. El código no deduce puntuaciones a partir de la respuesta.
+3. `evaluation/summarize_llm_evaluation.py` valida los valores registrados y
+   calcula cumplimientos por criterio, cumplimiento global, media de claridad
+   y utilidad, resultados por estrato y recuentos de `N/A`. Los valores `null`
+   permanecen como criterios no puntuados y `N/A` queda fuera del denominador
+   de cumplimiento.
+
+Los archivos preparados y los resúmenes se generan bajo
+`data/conversational_evaluation/`, por lo que permanecen fuera de Git. Este
+procedimiento no modifica la selección de casos ni genera resultados de
+evaluación ficticios.
 
 ## Decisiones provisionales
 
