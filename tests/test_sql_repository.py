@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 from src.sql_repository import (
     DEFAULT_DRIVER,
+    ANALYTICAL_ROWS_QUERY,
     HISTORICAL_QUERY,
     TRIP_BY_ID_QUERY,
     SqlHistoricalRepository,
@@ -102,6 +103,36 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
         ) as raised:
             SqlServerConfig.from_environment(environment)
         self.assertNotIn("secret-value", str(raised.exception))
+
+    def test_load_rows_between_uses_one_parameterized_bulk_query(self):
+        columns = (
+            "Codigo Viaje", "Codigo Vehiculo", "Fecha de inicio",
+            "Distancia", "Consumo", "Duracion",
+        )
+        cursor = MagicMock()
+        cursor.description = [(column,) for column in columns]
+        cursor.fetchall.return_value = [
+            ("T-2026", "V-1", datetime(2026, 6, 1), 2000, 0.5, 600)
+        ]
+        connection = MagicMock()
+        connection.cursor.return_value = cursor
+        repository = SqlHistoricalRepository(
+            SqlServerConfig("server", "database", "user", "secret"),
+            connection_factory=MagicMock(return_value=connection),
+        )
+
+        start = datetime(2026, 3, 1)
+        end = datetime(2026, 4, 1)
+        rows = repository.load_rows_between(start, end)
+
+        self.assertEqual(rows[0]["Consumo"], 500.0)
+        cursor.execute.assert_called_once_with(
+            ANALYTICAL_ROWS_QUERY,
+            start,
+            end,
+        )
+        self.assertNotIn("SELECT *", ANALYTICAL_ROWS_QUERY.upper())
+        connection.close.assert_called_once_with()
 
 
 if __name__ == "__main__":

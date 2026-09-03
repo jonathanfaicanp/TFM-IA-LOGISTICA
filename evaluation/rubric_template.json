@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "instructions": {
+    "C1": "Estado global correcto",
+    "C2": "Estados de las señales correctos",
+    "C3": "Valores y magnitudes principales fieles a los datos",
+    "C4": "No introduce causas no respaldadas",
+    "C5": "No confunde REVIEW con ineficiencia confirmada",
+    "C6": "Maneja correctamente NOT_EVALUABLE y la cobertura",
+    "allowed_C_values": [1, 0, "N/A"],
+    "claridad_utilidad_scale": [1, 2, 3, 4, 5]
+  },
+  "evaluation_fields": {
+    "case_id": {"type": "string"},
+    "C1": {"allowed_values": [1, 0, "N/A"]},
+    "C2": {"allowed_values": [1, 0, "N/A"]},
+    "C3": {"allowed_values": [1, 0, "N/A"]},
+    "C4": {"allowed_values": [1, 0, "N/A"]},
+    "C5": {"allowed_values": [1, 0, "N/A"]},
+    "C6": {"allowed_values": [1, 0, "N/A"]},
+    "claridad_utilidad": {"allowed_values": [1, 2, 3, 4, 5]},
+    "observaciones": {"type": "string"}
+  },
+  "evaluations": []
+}
