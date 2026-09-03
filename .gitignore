@@ -1,3 +1,5 @@
 data/
+# Datos reales generados para la evaluación conversacional (defensa explícita).
+data/conversational_evaluation/
 **/__pycache__/
 *.pyc

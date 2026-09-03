@@ -109,6 +109,21 @@ Este documento registra las decisiones del TFM y su estado para mantener la traz
 
 ## Trazabilidad
 
+## Decisión confirmada — Evaluación del componente conversacional
+
+- Los detectores deterministas y la consolidación son la fuente de verdad; el
+  LLM generará explicaciones sin modificar ni inferir estados analíticos.
+- Al no existir *ground truth* de ineficiencias reales, la evaluación comprueba
+  fidelidad numérica y semántica a la salida analítica y aspectos cualitativos
+  mediante rúbrica. No valida causalidad ni rendimiento frente a ineficiencias.
+- Las métricas semi-sintéticas de los detectores corresponden a una evaluación
+  distinta y no son resultados del componente conversacional.
+- Se propone una muestra funcional estratificada de hasta 20 casos reales de
+  2026: cinco por cada estrato definido en `docs/metodologia.md`. No se considera
+  estadísticamente representativa de la operación logística.
+- La selección es reproducible y registra carencias si no existen suficientes
+  casos; nunca se fuerzan categorías mediante cambios en reglas o datos.
+
 Las decisiones registradas pueden cambiar durante la investigación. Cualquier cambio posterior debe registrarse en este documento, indicando su estado y la información o evidencia que lo justifica.
 
 ## Decisión confirmada — Origen de datos del histórico

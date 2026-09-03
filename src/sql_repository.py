@@ -45,6 +45,19 @@ FROM [dbo].[WF_OPERATIVA_CAMIONES]
 WHERE [Codigo Viaje] = ?
 """.strip()
 
+ANALYTICAL_ROWS_QUERY = """
+SELECT
+    [Codigo Viaje],
+    [Codigo Vehiculo],
+    [Fecha de inicio],
+    [Distancia],
+    [Consumo],
+    [Duracion]
+FROM [dbo].[WF_OPERATIVA_CAMIONES]
+WHERE [Fecha de inicio] >= ?
+  AND [Fecha de inicio] < ?
+""".strip()
+
 
 def _to_analytical_row(column_names: list[str], sql_row: Any) -> dict[str, object]:
     analytical_row = dict(zip(column_names, sql_row))
@@ -148,5 +161,25 @@ class SqlHistoricalRepository:
 
             column_names = [description[0] for description in cursor.description]
             return _to_analytical_row(column_names, sql_row)
+        finally:
+            connection.close()
+
+    def load_rows_between(
+        self, start_datetime: datetime, end_datetime: datetime
+    ) -> list[dict[str, object]]:
+        """Load analytical rows in the half-open interval between two dates."""
+        connection = self._connection_factory(self.config.connection_string())
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+                ANALYTICAL_ROWS_QUERY,
+                start_datetime,
+                end_datetime,
+            )
+            column_names = [description[0] for description in cursor.description]
+            return [
+                _to_analytical_row(column_names, sql_row)
+                for sql_row in cursor.fetchall()
+            ]
         finally:
             connection.close()
