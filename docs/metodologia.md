@@ -140,6 +140,101 @@ Los archivos preparados y los resúmenes se generan bajo
 procedimiento no modifica la selección de casos ni genera resultados de
 evaluación ficticios.
 
+### Resultados de la evaluación conversacional v1
+
+#### Diseño de evaluación
+
+La evaluación se realizó sobre 20 casos mediante una muestra funcional
+estratificada. Se incluyeron cuatro estratos, con cinco casos en cada uno:
+
+- `NO_RELEVANT_DEVIATION_COMPLETE`;
+- `REVIEW_COMPLETE`;
+- `NOT_EVALUABLE_NONE`;
+- `PARTIAL`.
+
+Las respuestas del LLM fueron generadas y congeladas antes de realizar la
+puntuación. Asimismo, la rúbrica fue fijada antes de puntuar los casos. El
+sistema analítico determinista constituye la fuente de verdad y el LLM se
+limita a explicar su resultado estructurado. En consecuencia, esta evaluación
+mide la fidelidad y utilidad de las explicaciones, no la capacidad para detectar
+ineficiencias reales.
+
+#### Resultados globales
+
+Los 20 casos fueron evaluados en su totalidad. Los resultados agregados fueron:
+
+| Criterio | Cumplimiento sobre casos aplicables | Tasa | No aplicables |
+|---|---:|---:|---:|
+| `C1_global_status` | 20/20 | 100 % | 0 |
+| `C2_signal_statuses` | 20/20 | 100 % | 0 |
+| `C3_numeric_fidelity` | 19/20 | 95 % | 0 |
+| `C4_no_unsupported_causes` | 20/20 | 100 % | 0 |
+| `C5_no_confirmed_inefficiency_claim` | 6/6 | 100 % | 14 |
+| `C6_not_evaluable_and_coverage` | 10/10 | 100 % | 10 |
+
+El cumplimiento global sobre criterios aplicables fue del 98,96 %. La media de
+claridad y utilidad fue de 3,95/5. Se registraron 24 criterios no aplicables y
+ningún criterio quedó sin puntuar.
+
+#### Resultados por estrato
+
+| Estrato | Cumplimiento global | Claridad/utilidad media |
+|---|---:|---:|
+| `NO_RELEVANT_DEVIATION_COMPLETE` | 100 % | 4,0/5 |
+| `NOT_EVALUABLE_NONE` | 100 % | 4,0/5 |
+| `PARTIAL` | 100 % | 4,0/5 |
+| `REVIEW_COMPLETE` | 96 % | 3,8/5 |
+
+En el estrato `REVIEW_COMPLETE`, el criterio `C3_numeric_fidelity` obtuvo un
+cumplimiento de 4/5, equivalente al 80 %.
+
+#### Incumplimiento observado
+
+El único incumplimiento se produjo en `case_006` y afectó al criterio
+`C3_numeric_fidelity`. El resultado analítico contenía una
+`relative_deviation` de consumo de 1189,597..., que expresada como porcentaje
+corresponde aproximadamente a +118.959,7 %. El LLM informó aproximadamente
++1.189,6 %, lo que constituye un error de escala o conversión porcentual.
+
+En ese mismo caso, el LLM mantuvo correctamente `overall_status=REVIEW`,
+comunicó correctamente el estado de las señales, no atribuyó causas y no
+presentó el resultado como una ineficiencia confirmada. En toda esta evaluación,
+`REVIEW` designa una desviación que requiere revisión, no una ineficiencia
+confirmada.
+
+#### Interpretación
+
+El resultado evidencia una alta fidelidad funcional del componente
+conversacional respecto a la salida determinista en esta muestra. El 98,96 % no
+debe interpretarse como precisión del detector ni como porcentaje de
+ineficiencias correctamente detectadas, dado que la evaluación no dispone de
+*ground truth* real de ineficiencia y evalúa explicaciones, no detecciones.
+
+El incumplimiento numérico muestra que el LLM puede introducir errores al
+verbalizar magnitudes aunque el resultado analítico de entrada sea correcto.
+Este hallazgo respalda la decisión arquitectónica de mantener la detección en
+componentes deterministas y utilizar el LLM únicamente como capa explicativa.
+
+`NOT_EVALUABLE` indica que una señal no pudo evaluarse y no significa
+comportamiento normal. Del mismo modo, la señal temporal representa minutos por
+kilómetro respecto al histórico comparable; no representa tiempo de parada.
+
+#### Límites de validez
+
+Los resultados deben interpretarse dentro de los siguientes límites de validez
+de la evaluación:
+
+- se evaluaron únicamente 20 casos;
+- la muestra es funcional y estratificada, por lo que no representa la
+  prevalencia real de los estados en producción;
+- no existe *ground truth* real de ineficiencias;
+- la claridad y utilidad fueron valoradas por un único evaluador humano;
+- no se realizó una evaluación interjueces;
+- los resultados están vinculados al modelo y al *prompt* congelados para esta
+  evaluación v1;
+- los resultados no deben generalizarse a otros modelos o *prompts* sin una
+  nueva evaluación.
+
 ## Decisiones provisionales
 
 No hay decisiones metodológicas provisionales documentadas todavía.
