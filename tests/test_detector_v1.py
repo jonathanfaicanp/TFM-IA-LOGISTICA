@@ -16,6 +16,12 @@ class DetectorV1Tests(unittest.TestCase):
         trip = normalize_trip(row(distance="2.000,0", consumption="500,0"))
         self.assertEqual((trip.distancia_km, trip.consumo_litros, trip.consumo_l_100km), (2.0, .5, 25.0))
 
+    def test_normalization_preserves_missing_consumption(self):
+        trip = normalize_trip(row(consumption=None))
+        self.assertIsNone(trip.consumo_litros)
+        self.assertIsNone(trip.consumo_l_100km)
+        self.assertEqual(trip.validation_reason, "MISSING_CONSUMPTION")
+
     def test_distance_ranges(self):
         values = (.5, 1.5, 3, 7, 15, 30, 75, 200, 301)
         self.assertEqual(tuple(distance_range(value) for value in values), DISTANCE_RANGES)
@@ -64,6 +70,15 @@ class DetectorV1Tests(unittest.TestCase):
     def test_non_positive_consumption_is_not_evaluable(self):
         result = self._detector().evaluate(row(date="2026-01-01", consumption=0))
         self.assertEqual((result.status, result.reason), (DetectionStatus.NOT_EVALUABLE, "NON_POSITIVE_CONSUMPTION"))
+
+    def test_missing_consumption_is_not_evaluable(self):
+        result = self._detector().evaluate(row(date="2026-01-01", consumption=None))
+        self.assertEqual(
+            (result.status, result.reason),
+            (DetectionStatus.NOT_EVALUABLE, "MISSING_CONSUMPTION"),
+        )
+        self.assertIsNone(result.consumo_litros)
+        self.assertIsNone(result.consumo_l_100km)
 
     def test_non_positive_distance_is_not_evaluable(self):
         result = self._detector().evaluate(row(date="2026-01-01", distance=0))

@@ -42,7 +42,10 @@ def distance_range(distance_km: float) -> str:
 def normalize_trip(row: Mapping[str, object]) -> NormalizedTrip:
     start = datetime.fromisoformat(str(row["Fecha de inicio"]).strip())
     distance_km = parse_number(row["Distancia"]) / 1000
-    consumption_liters = parse_number(row["Consumo"]) / 1000
+    raw_consumption = row["Consumo"]
+    consumption_liters = (
+        None if raw_consumption is None else parse_number(raw_consumption) / 1000
+    )
     common = {
         "codigo_viaje": str(row["Codigo Viaje"]) if row.get("Codigo Viaje") is not None else None,
         "codigo_vehiculo": str(row["Codigo Vehiculo"]),
@@ -51,6 +54,13 @@ def normalize_trip(row: Mapping[str, object]) -> NormalizedTrip:
         "distancia_km": distance_km,
         "consumo_litros": consumption_liters,
     }
+    if consumption_liters is None:
+        return NormalizedTrip(
+            **common,
+            consumo_l_100km=None,
+            distance_range=None,
+            validation_reason="MISSING_CONSUMPTION",
+        )
     if consumption_liters <= 0:
         return NormalizedTrip(**common, consumo_l_100km=None, distance_range=None, validation_reason="NON_POSITIVE_CONSUMPTION")
     if distance_km <= 0:
