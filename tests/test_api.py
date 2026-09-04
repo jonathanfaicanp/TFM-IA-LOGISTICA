@@ -123,6 +123,28 @@ class SqlTripApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn("missing", response.json()["detail"])
 
+    async def test_evaluate_trip_preserves_null_consumption_as_partial_analysis(self):
+        self.repository.get_trip_by_id.return_value = {
+            "Codigo Viaje": "T-NULL",
+            "Codigo Vehiculo": "V1",
+            "Fecha de inicio": "2026-01-01 12:00:00",
+            "Distancia": 2000,
+            "Consumo": None,
+            "Duracion": 720,
+        }
+
+        response = await self.client.post(
+            "/evaluate-trip", json={"trip_id": "T-NULL"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["analysis_coverage"], "PARTIAL")
+        self.assertEqual(body["signals"]["consumption"]["status"], "NOT_EVALUABLE")
+        self.assertEqual(body["signals"]["consumption"]["reason"], "MISSING_CONSUMPTION")
+        self.assertIsNone(body["signals"]["consumption"]["consumo_litros"])
+        self.assertNotEqual(body["signals"]["temporal"]["status"], "NOT_EVALUABLE")
+
 
 if __name__ == "__main__":
     unittest.main()

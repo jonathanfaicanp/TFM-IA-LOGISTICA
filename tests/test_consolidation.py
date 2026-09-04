@@ -52,6 +52,36 @@ class ConsolidationTests(unittest.TestCase):
         self.assertEqual(result["signals"]["consumption"]["status"], "REVIEW")
         self.assertEqual(result["signals"]["temporal"]["status"], "NOT_EVALUABLE")
 
+    def test_missing_consumption_does_not_prevent_temporal_consolidation(self):
+        consumption = consumption_result(DetectionStatus.NOT_EVALUABLE)
+        consumption = DetectionResult(
+            **{
+                **consumption.__dict__,
+                "reason": "MISSING_CONSUMPTION",
+                "consumo_litros": None,
+                "consumo_l_100km": None,
+                "baseline": None,
+                "relative_deviation": None,
+                "mad": None,
+                "robust_z": None,
+                "baseline_type": None,
+                "historical_observations": None,
+            }
+        )
+
+        result = consolidate_results(
+            consumption, temporal_result(DetectionStatus.NO_RELEVANT_DEVIATION)
+        )
+
+        self.assertEqual(result.overall_status, DetectionStatus.NO_RELEVANT_DEVIATION)
+        self.assertEqual(result.analysis_coverage, AnalysisCoverage.PARTIAL)
+        self.assertEqual(
+            result.signals["consumption"]["reason"], "MISSING_CONSUMPTION"
+        )
+        self.assertEqual(
+            result.signals["temporal"]["status"], "NO_RELEVANT_DEVIATION"
+        )
+
     def test_different_trip_results_are_rejected(self):
         temporal = temporal_result(DetectionStatus.REVIEW)
         temporal = TemporalDetectionResult(**{**temporal.__dict__, "codigo_viaje": "T2"})
