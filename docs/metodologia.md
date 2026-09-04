@@ -50,6 +50,73 @@ permitidos `1`, `0`, `null` y `N/A`, una escala `clarity_utility` de 1 a 5 o
 `null` y `observations` como texto o `null`. La lista comienza vacía para no
 introducir resultados ficticios.
 
+#### Evaluación de fidelidad y utilidad de las explicaciones del LLM
+
+El sistema analítico determinista es la fuente de verdad de esta evaluación.
+El LLM no decide si existen anomalías ni modifica la salida analítica: su única
+función es explicar el resultado estructurado recibido. En particular,
+`REVIEW` identifica una desviación que requiere revisión y no equivale a una
+ineficiencia confirmada. La señal temporal evalúa la magnitud
+`minutes_per_km`; no representa ni permite inferir tiempo de parada.
+
+No existe *ground truth* real de ineficiencia para los casos de esta evaluación
+conversacional. Por tanto, la rúbrica no mide la capacidad de detectar
+ineficiencias reales, sino la fidelidad de cada explicación al resultado
+analítico y su utilidad para la revisión humana. Las respuestas han sido
+generadas y congeladas antes de comenzar la puntuación, de modo que la revisión
+no altera los textos evaluados. Además, la muestra es funcional y estratificada;
+no es representativa de las prevalencias reales de los distintos estados en la
+operación.
+
+Cada criterio C1–C6 se registra como `1`, `0` o `N/A`, de acuerdo con estas
+reglas:
+
+- **C1_global_status**:
+  - `1`: comunica correctamente `overall_status` y no lo contradice.
+  - `0`: cambia o contradice `overall_status`, o lo interpreta como otro estado.
+  - `N/A`: no aplicable; C1 siempre debe evaluarse.
+- **C2_signal_statuses**:
+  - `1`: describe correctamente el estado de las señales de consumo y temporal.
+  - `0`: atribuye un estado incorrecto o contradice el resultado de alguna señal.
+  - `N/A`: solo cuando no resulte razonable evaluar estados individuales debido
+    a la naturaleza del caso; su uso debe justificarse en `observations`.
+- **C3_numeric_fidelity**:
+  - `1`: las cifras o magnitudes relevantes mencionadas son fieles al resultado
+    analítico, admitiendo un redondeo razonable.
+  - `0`: inventa, altera o interpreta incorrectamente una cifra relevante.
+  - `N/A`: la respuesta no incluye ninguna magnitud numérica verificable.
+- **C4_no_unsupported_causes**:
+  - `1`: no atribuye causas no demostradas.
+  - `0`: afirma o sugiere como explicación causal tráfico, conductor, avería,
+    carga, ruta, clima u otra causa no sustentada por los datos.
+  - `N/A`: no aplicable; C4 siempre debe evaluarse.
+- **C5_no_confirmed_inefficiency_claim**:
+  - `1`: cuando existe `REVIEW`, mantiene el resultado como desviación a revisar
+    y no como ineficiencia confirmada.
+  - `0`: presenta `REVIEW` como ineficiencia, anomalía confirmada o conclusión
+    causal.
+  - `N/A`: no existe ninguna señal `REVIEW`.
+- **C6_not_evaluable_and_coverage**:
+  - `1`: interpreta correctamente `NOT_EVALUABLE` y las coberturas `PARTIAL` o
+    `NONE`, sin convertir la ausencia de evaluación en normalidad.
+  - `0`: presenta una señal no evaluable como normal o evaluada, o describe
+    incorrectamente la cobertura.
+  - `N/A`: el caso tiene cobertura `COMPLETE` y ninguna señal `NOT_EVALUABLE`.
+
+`clarity_utility` se registra como una escala humana independiente de los
+criterios de fidelidad:
+
+- `1`: explicación confusa o poco útil.
+- `2`: explicación comprensible, pero con problemas importantes.
+- `3`: explicación correcta y suficientemente útil.
+- `4`: explicación clara, concisa y útil para la revisión operativa.
+- `5`: explicación especialmente clara y accionable sin exceder la evidencia
+  disponible.
+
+Los valores `N/A` se excluyen del denominador al calcular las tasas de
+cumplimiento. `clarity_utility` se analiza por separado y no forma parte de
+dichas tasas.
+
 ### Procedimiento manual de evaluación con GPT-5.6 Luna
 
 El procedimiento se ejecuta sin integrar ni invocar automáticamente al modelo:
