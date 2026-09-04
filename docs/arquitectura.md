@@ -1,77 +1,89 @@
 # Arquitectura
 
-Este documento describirá la arquitectura del proyecto cuando existan decisiones y evidencias que la respalden.
+La arquitectura v1 separa el motor analítico determinista de las fronteras de
+integración y de la explicación en lenguaje natural:
 
-## Decisiones confirmadas
+`datos -> normalización -> baselines B30 -> detectores v1 -> consolidación -> API`
 
-La capa analítica reutilizable mantiene un flujo local y desacoplado de integraciones externas:
+Ni n8n ni GPT forman parte del motor de detección ni pueden sustituir sus
+estados o cálculos.
 
-`datos -> preparación -> baselines B30 -> detectores v1 -> salidas estructuradas`
+## 1. Pipeline analítico
 
-- **Preparación común:** normaliza tipos y fechas, convierte unidades, asigna el rango de distancia y calcula el indicador correspondiente a cada señal.
-- **Baselines B30:** se construyen exclusivamente con registros históricos válidos de 2024 y 2025. Exigen al menos 100 observaciones por vehículo y utilizan mediana y MAD del contexto vehículo-rango cuando existen al menos 30 observaciones; en caso contrario, utilizan el *fallback* del vehículo.
-- **Señal de consumo:** `DetectorV1` evalúa registros de 2026 con consumo y distancia positivos mediante L/100 km y la regla desviación relativa > 50 % AND `robust_z` > 2.
-- **Señal temporal:** `TemporalDetectorV1` evalúa registros de 2026 con duración positiva y distancia superior a 1 km mediante `minutes_per_km` y la regla desviación relativa > 50 % AND `robust_z` > 2. Los viajes de hasta 1 km producen `NOT_EVALUABLE` para esta señal, sin considerarse datos inválidos por ese motivo.
-- **Salidas estructuradas independientes:** cada detector devuelve sus propios datos normalizados, referencia histórica, medidas de desviación, tipo de *baseline*, estado y motivo. Las estructuras pueden serializarse posteriormente a JSON, pero no constituyen todavía una API externa.
-- **Semántica:** `REVIEW` significa únicamente «desviación a revisar».
-- **Ausencia de causalidad:** ninguna de las dos señales identifica ni confirma el motivo de una desviación.
-- **Integraciones posteriores:** N8N y GPT quedan fuera del detector v1 y corresponden a fases posteriores de orquestación y explicación.
+La preparación normaliza tipos, fechas y unidades, asigna rangos de distancia y
+calcula L/100 km o `minutes_per_km`. Los baselines usan observaciones válidas de
+2024–2025, mediana y MAD:
 
-### Consolidación de señales
+- mínimo de 100 observaciones históricas por vehículo;
+- contexto vehículo-rango con un mínimo de 30 observaciones;
+- *fallback* al vehículo cuando el contexto no alcanza 30.
 
-Los resultados independientes de consumo y comportamiento temporal se entregan a una capa de consolidación que no modifica sus cálculos:
+`DetectorV1` evalúa consumo mediante L/100 km. `TemporalDetectorV1` evalúa
+minutos por kilómetro en viajes de más de 1 km; esta señal no representa tiempo
+de parada. Ambos aplican la regla estricta:
 
-`DetectorV1 + TemporalDetectorV1 -> consolidación -> API`
+`relative_deviation > 0.50 AND robust_z > 2`
 
-El contrato consolidado contiene la identidad del viaje, `overall_status`, `analysis_coverage`, las señales en revisión y los resultados estructurados originales bajo `signals.consumption` y `signals.temporal`.
+Los estados son `REVIEW`, `NO_RELEVANT_DEVIATION` y `NOT_EVALUABLE`. `REVIEW`
+significa desviación que requiere revisión, no ineficiencia confirmada, y
+ninguna señal atribuye causas.
 
-- `overall_status` es `REVIEW` si cualquier señal está en revisión; es `NO_RELEVANT_DEVIATION` si ninguna está en revisión y al menos una es evaluable; y es `NOT_EVALUABLE` cuando ninguna señal es evaluable.
-- `analysis_coverage` es `COMPLETE` cuando ambas señales son evaluables, `PARTIAL` cuando sólo una es evaluable y `NONE` cuando ninguna lo es.
-- `review_signals` incluye exclusivamente los nombres de las señales cuyo estado individual es `REVIEW`.
+### Consolidación
 
-### Frontera HTTP
+- `REVIEW` si cualquier señal está en `REVIEW`;
+- `NO_RELEVANT_DEVIATION` si no hay `REVIEW` y al menos una señal es evaluable;
+- `NOT_EVALUABLE` si ninguna señal es evaluable.
 
-La API FastAPI constituye la frontera estable entre la capa Python y futuros consumidores. Expone `GET /health` y `POST /evaluate`. Los detectores se inicializan una vez con el histórico al arrancar el servicio; la ruta local puede configurarse mediante `TFM_DATA_PATH` y no se envía el histórico en cada petición.
+La cobertura es `COMPLETE`, `PARTIAL` o `NONE` según sean evaluables dos, una o
+ninguna señal. Los resultados individuales se preservan bajo `signals`.
 
-La API valida únicamente datos de entrada del viaje. Los estados, cobertura, referencias históricas, puntuaciones robustas y decisiones de revisión siempre son calculados internamente. La detección y la futura explicación permanecen separadas: ni la API ni futuros componentes N8N/GPT sustituyen las decisiones analíticas de los detectores. La integración con N8N/GPT no está implementada todavía.
+## 2. Datos y frontera API
 
-### Origen del histórico
+CSV es el origen predeterminado para desarrollo local. SQL Server es la fuente
+operacional. Su repositorio es de solo lectura, usa consultas parametrizadas y
+columnas explícitas, y carga el histórico `[2024-01-01, 2026-01-01)`.
 
-El arranque selecciona el origen mediante `TFM_DATA_SOURCE`: `csv` (valor por defecto) conserva `TFM_DATA_PATH` para desarrollo y pruebas, mientras que `sql` obtiene de SQL Server únicamente los registros de 2024 y 2025 necesarios para construir los detectores. El acceso SQL está aislado en un repositorio de solo lectura y utiliza consultas parametrizadas con columnas explícitas. La tabla SQL proporciona `Consumo` en litros; el repositorio lo convierte a mililitros antes de entregar cada registro, preservando así el contrato analítico existente.
+La tabla SQL proporciona `Consumo` en litros y el adaptador lo convierte a
+mililitros para mantener el contrato interno. `Consumo=NULL` se conserva como
+ausencia: consumo produce `NOT_EVALUABLE` con `MISSING_CONSUMPTION`, la señal
+temporal puede evaluarse y la cobertura consolidada puede ser `PARTIAL`. El
+valor ausente nunca se convierte en cero.
 
-SQL Server será la fuente operacional en el entorno empresarial. Su servidor, base de datos, usuario, contraseña y controlador ODBC se suministran externamente mediante `TFM_DB_SERVER`, `TFM_DB_DATABASE`, `TFM_DB_USER`, `TFM_DB_PASSWORD` y, opcionalmente, `TFM_DB_DRIVER`. No se almacenan credenciales en el repositorio. La elección del origen solo cambia la carga del histórico y no modifica la normalización, los baselines, los umbrales, la consolidación ni la lógica de los detectores.
+FastAPI constituye la frontera HTTP implementada:
 
-## Decisiones provisionales
+- `GET /health`;
+- `POST /evaluate`, con el contrato completo del viaje;
+- `POST /evaluate-trip`, que recupera por `trip_id` en modo SQL.
 
-- La interfaz pública inicial se implementa como módulos Python en `src/`, sin servicios externos ni capas adicionales.
+Los detectores se inicializan una vez con el histórico. La API no decide
+estados, cobertura o revisiones. La integración SQL Server → FastAPI ha sido
+validada externamente; los tests del repositorio emplean dobles y no conectan
+con una base real. La configuración SQL se proporciona externamente y no se
+versionan credenciales.
 
-## Supuestos
+## 3. Orquestación n8n operacional
 
-No hay supuestos de arquitectura documentados todavía.
+El flujo operacional consulta `POST /evaluate-trip` mediante un `trip_id`,
+recibe el resultado consolidado y puede entregarlo a una capa explicativa. Se ha
+probado fuera del repositorio, pero no se presenta como despliegue productivo ni
+está cubierto por tests automáticos end-to-end.
 
-## Decisiones pendientes
+n8n actúa como orquestador. GPT explica la salida calculada: no decide
+desviaciones, no corrige estados y no infiere causas no demostradas.
 
-No hay decisiones de arquitectura pendientes documentadas todavía.
+## 4. Workflow n8n de evaluación conversacional
 
-## Cuestiones que requieren investigación
+`n8n/conversational_evaluation_v1.json` reproduce exclusivamente la generación
+offline de respuestas de la evaluación conversacional v1:
 
-No hay cuestiones de investigación de arquitectura documentadas todavía.
+`Manual Trigger -> lectura JSON -> extracción -> Split Out -> GPT-5.6 Luna -> Edit Fields -> Aggregate -> JSON -> escritura`
 
-## Cuestiones que requieren validación con datos
+Recibe un artefacto anonimizado y guarda `case_id`, `stratum`, `model` y
+`response`. No consulta `/evaluate-trip`, no incorpora datos empresariales, no
+contiene credenciales y exige configurar una credencial propia de OpenAI.
 
-No hay cuestiones de validación con datos de arquitectura documentadas todavía.
+## Alcance de despliegue
 
-## Estructura prevista del documento
-
-- Contexto y alcance.
-- Componentes y responsabilidades.
-- Flujos de información.
-- Interfaces e integraciones.
-- Seguridad, privacidad y gestión de configuración.
-- Riesgos, limitaciones y decisiones relacionadas.
-
-## Evaluación operacional por identificador
-
-`POST /evaluate` se mantiene como endpoint analítico genérico: recibe todos los datos del viaje y continúa disponible para desarrollo, pruebas y casos sintéticos. `POST /evaluate-trip` es la integración operacional SQL: recibe únicamente `trip_id`, recupera el viaje y devuelve exactamente el mismo contrato consolidado.
-
-`/evaluate-trip` solo está disponible con `TFM_DATA_SOURCE=sql`; en modo CSV informa de forma explícita que no existe acceso operacional SQL. De este modo, N8N puede enviar únicamente el identificador. `SqlHistoricalRepository` conserva la responsabilidad exclusiva de consultar `dbo.WF_OPERATIVA_CAMIONES` mediante parámetros y normalizar `Consumo` de litros a mililitros, manteniendo los valores `NULL` como `None`, antes de invocar la capa analítica existente.
+El repositorio implementa el prototipo analítico, sus adaptadores y la frontera
+HTTP. No declara una plataforma productiva: autenticación, monitorización, alta
+disponibilidad, alertas y despliegue seguro son trabajo futuro.
