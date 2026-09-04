@@ -3,3 +3,5 @@ data/
 data/conversational_evaluation/
 **/__pycache__/
 *.pyc
+# Exportaciones originales y otros artefactos locales temporales.
+/temp/

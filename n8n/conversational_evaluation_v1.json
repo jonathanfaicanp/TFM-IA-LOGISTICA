@@ -1,0 +1,166 @@
+{
+  "name": "Conversational Evaluation v1 (sanitized)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-304, 32],
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/files/llm_evaluation.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [-80, 32],
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [144, 32],
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.evaluations",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [368, 80],
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.6-luna",
+          "mode": "list",
+          "cachedResultName": "GPT-5.6-LUNA"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Eres un asistente de apoyo al análisis logístico.\n\nTu función es explicar resultados producidos por un sistema analítico determinista. No debes decidir por tu cuenta si existe una anomalía o ineficiencia.\n\nReglas obligatorias:\n- Respeta exactamente overall_status y el status de cada señal.\n- REVIEW significa que existe una desviación que requiere revisión, no una ineficiencia confirmada.\n- NO_RELEVANT_DEVIATION significa que no se han cumplido los criterios definidos para marcar una desviación relevante.\n- NOT_EVALUABLE significa que esa señal no ha podido evaluarse.\n- No inventes causas.\n- No atribuyas resultados a tráfico, averías, conductor, carga, ruta, clima u otros factores si los datos proporcionados no los demuestran.\n- No afirmes que una desviación implica causalidad.\n- Explica consumo y señal temporal por separado cuando sean evaluables.\n- La señal temporal representa minutos por kilómetro respecto al histórico comparable; no la denomines \"tiempo de parada\".\n- Utiliza lenguaje profesional, claro y breve.\n- Expresa las desviaciones relativas como porcentajes comprensibles.\n- Indica que las referencias corresponden al comportamiento histórico utilizado por el sistema."
+            },
+            {
+              "content": "={{ JSON.stringify($json.analytical_result) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [528, 80],
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "case_id",
+              "value": "={{ $('Split Out').item.json.case_id }}",
+              "type": "string"
+            },
+            {
+              "name": "stratum",
+              "value": "={{ $('Split Out').item.json.stratum }}",
+              "type": "string"
+            },
+            {
+              "name": "model",
+              "value": "GPT-5.6-LUNA",
+              "type": "string"
+            },
+            {
+              "name": "response",
+              "value": "={{ $json.output[0].content[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [896, 80],
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "responses",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1040, 80],
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "binaryPropertyName": "luna_responses.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [1264, 80],
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/files/luna_responses.json",
+        "dataPropertyName": "luna_responses.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [1381.9358437935844, 80],
+      "name": "Read/Write Files from Disk1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [[{"node": "Read/Write Files from Disk", "type": "main", "index": 0}]]
+    },
+    "Read/Write Files from Disk": {
+      "main": [[{"node": "Extract from File", "type": "main", "index": 0}]]
+    },
+    "Extract from File": {
+      "main": [[{"node": "Split Out", "type": "main", "index": 0}]]
+    },
+    "Split Out": {
+      "main": [[{"node": "Message a model", "type": "main", "index": 0}]]
+    },
+    "Message a model": {
+      "main": [[{"node": "Edit Fields", "type": "main", "index": 0}]]
+    },
+    "Edit Fields": {
+      "main": [[{"node": "Aggregate", "type": "main", "index": 0}]]
+    },
+    "Aggregate": {
+      "main": [[{"node": "Convert to File", "type": "main", "index": 0}]]
+    },
+    "Convert to File": {
+      "main": [[{"node": "Read/Write Files from Disk1", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
