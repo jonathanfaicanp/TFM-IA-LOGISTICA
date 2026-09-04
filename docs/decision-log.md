@@ -1,184 +1,216 @@
 # Registro de decisiones
 
-Este documento registra las decisiones del TFM y su estado para mantener la trazabilidad.
+Este documento conserva la evolución de las decisiones del TFM y distingue las
+decisiones cerradas, las hipótesis sustituidas y los pendientes reales.
 
-## Confirmado
+## Decisiones cerradas para la v1
 
-- El TFM se desarrolla sobre un caso empresarial real.
-- El título del proyecto es: «Sistema IA conversacional para detección de ineficiencias logísticas y apoyo a la toma de decisiones».
-- La fuente principal para el análisis será la tabla transformada `dbo.WF_OPERATIVA_CAMIONES` de la base de datos `AETL_SBOBI_v2_LOGISTICA`.
-- Entre los campos relevantes de la tabla se encuentran: Código Viaje, Código Vehículo, Nombre Vehículo, Fecha de inicio, Fecha fin, Duración, Distancia, Velocidad máxima, Consumo, Conductor, Consumo CO2, Indicador de conducción y Matrícula.
-- Para el análisis actual se consideran principalmente las variables distancia, duración, consumo, velocidad máxima e indicador de conducción.
-- Las unidades conocidas son: distancia en metros, duración en segundos y consumo en mililitros.
-- Se pueden derivar las siguientes variables normalizadas: distancia en kilómetros; duración en minutos u horas; consumo en litros; y consumo en litros por 100 km.
-- Los registros con consumo igual a cero no se interpretarán automáticamente como consumo real cero; actualmente se considera que pueden corresponder a vehículos o dispositivos sin una medición válida de consumo.
-- La exploración realizada sobre la tabla obtuvo 70.195 registros.
-- En dicha exploración se identificaron 513 registros con distancia o duración no válidas según los criterios utilizados, quedando 69.682 registros candidatos (99,27 %).
-- Los datos de 2024 y 2025 no se descartarán automáticamente y se evaluará su utilización dentro del *baseline*.
-- Actualmente no existe una variable de *ground truth* que identifique qué viajes constituyen realmente una ineficiencia.
-- Tampoco se dispone actualmente de la posibilidad de obtener una validación experta sistemática de una muestra de registros.
+### Alcance y semántica
 
-## Provisional
+- El prototipo identifica desviaciones respecto al comportamiento histórico.
+- No existe *ground truth* que confirme ineficiencias reales.
+- `REVIEW` significa «desviación que requiere revisión», sin confirmar
+  ineficiencia o causalidad. `NOT_EVALUABLE` no significa normalidad.
+- El LLM solo explica resultados del sistema determinista.
+- No existe una variable de carga disponible; el análisis carga-consumo no
+  forma parte de la v1.
 
-- Se estudia utilizar un *baseline* histórico por vehículo para detectar desviaciones respecto al comportamiento habitual.
-- Se considera inicialmente la utilización de métodos estadísticos robustos, como mediana y medidas de dispersión, antes de introducir algoritmos de *machine learning* más complejos.
-- Se estudia utilizar una división temporal entre datos históricos y datos posteriores para evaluar el comportamiento del detector.
-- Se plantea estudiar si un *baseline* basado en todo el histórico funciona mejor o peor que uno que priorice datos recientes.
-- Se plantea una arquitectura en la que SQL Server proporcione los datos, un componente analítico realice las transformaciones y detección, N8N realice la orquestación y GPT genere explicaciones en lenguaje natural.
-- Las decisiones arquitectónicas anteriores no son definitivas.
+### División temporal, baselines y detectores
 
-## Resultados experimentales — estado provisional
+- Los datos válidos de 2024–2025 construyen los baselines; 2026 se reserva para
+  evaluación mediante una división temporal no aleatoria.
+- Cada vehículo requiere 100 observaciones históricas válidas.
+- B30 usa mediana y MAD del contexto vehículo-rango con al menos 30
+  observaciones y *fallback* al vehículo.
+- Consumo usa L/100 km; temporal usa `minutes_per_km` y exige más de 1 km. La
+  señal temporal no representa tiempo de parada.
+- Ambas señales aplican
+  `relative_deviation > 0.50 AND robust_z > 2`.
+- Los estados son `REVIEW`, `NO_RELEVANT_DEVIATION` y `NOT_EVALUABLE`.
+- Consumo cero o `NULL` no se interpreta como cero real. `NULL` se conserva
+  ausente, produce `MISSING_CONSUMPTION` y no impide la evaluación temporal.
 
-### Baseline B30 como candidata preferente
+### Consolidación
 
-- **Evidencia:** Las evaluaciones temporales compararon A, B30 y B50. B30 mostró mejor comportamiento descriptivo que A y un mayor uso del contexto que B50, manteniendo el fallback al baseline por vehículo cuando el contexto no alcanza 30 observaciones.
-- **Interpretación:** B30 es actualmente la candidata preferente entre las estrategias experimentadas.
-- **Estado:** Decisión metodológica provisional; no constituye la selección definitiva del baseline.
+- El resultado es `REVIEW` si alguna señal está en revisión;
+  `NO_RELEVANT_DEVIATION` si no hay revisión y alguna es evaluable; y
+  `NOT_EVALUABLE` si ninguna es evaluable.
+- La cobertura es `COMPLETE`, `PARTIAL` o `NONE` para dos, una o ninguna señal
+  evaluable. Los resultados individuales se conservan bajo `signals`.
 
-### Dependencia respecto al rango de distancia
+### Datos, API y orquestación
 
-- **Evidencia:** Las medianas y distribuciones de L/100 km varían por rango de distancia dentro de los vehículos. Los análisis de desviación relativa y robust_z muestran una mayor frecuencia relativa de valores elevados en trayectos cortos.
-- **Interpretación:** La distancia aporta contexto relevante para representar el comportamiento habitual del consumo.
-- **Estado:** Evidencia experimental; no se adopta todavía una regla definitiva de tratamiento de la distancia.
+- CSV permanece como fuente de desarrollo y SQL Server es la fuente
+  operacional de solo lectura.
+- El consumo SQL en litros se convierte a mililitros en el adaptador.
+- FastAPI expone `GET /health`, `POST /evaluate` y `POST /evaluate-trip`; este
+  último recupera el viaje por `trip_id` en modo SQL.
+- La integración SQL Server → FastAPI y el workflow n8n operacional se han
+  validado fuera del repositorio. No son tests automáticos end-to-end ni un
+  despliegue productivo.
+- El workflow de evaluación conversacional v1 se conserva sanitizado en
+  `n8n/conversational_evaluation_v1.json`, sin credenciales ni metadatos de
+  instalación.
 
-### Sensibilidad a una distancia mínima evaluable
+### Evaluación cerrada
 
-- **Evidencia:** Al aumentar el umbral mínimo de distancia se reducen los valores extremos del KPI y de las desviaciones, pero también se descarta una proporción significativa de los registros evaluables.
-- **Interpretación:** Existe un compromiso entre estabilidad del KPI y cobertura de datos.
-- **Estado:** No se adopta un filtro mínimo de distancia como criterio de exclusión global.
+- Los benchmarks semi-sintéticos evalúan respuestas controladas, no rendimiento
+  frente a ineficiencias reales.
+- En consumo, sobre 6.427 registros evaluables, el control marcó 10,14 % y la
+  especificidad experimental fue 89,86 %. El *recall* fue 21,44 %, 48,87 %,
+  82,70 %, 92,95 % y 98,38 % para +25 %, +50 %, +100 %, +200 % y +500 %.
+- En temporal, sobre 9.644 casos evaluables, el control marcó 13,03 % y la
+  especificidad experimental fue 86,97 %. El *recall* fue 24,83 %, 40,18 %,
+  65,84 %, 87,33 % y 98,66 % para las mismas perturbaciones.
+- Estas métricas no son precisión, sensibilidad o especificidad frente a
+  ineficiencias reales.
+- La evaluación conversacional v1 se cerró con 20 casos estratificados,
+  98,96 % de cumplimiento aplicable y claridad/utilidad media de 3,95/5. Hubo
+  un único incumplimiento de fidelidad numérica. La rúbrica y límites constan en
+  `docs/metodologia.md`.
 
-### Viabilidad del cálculo MAD sobre B30
+## Evolución histórica y evidencia
 
-- **Evidencia:** En la evaluación de 2026 se calcularon medidas MAD para los 6.665 registros evaluables con B30; no se produjeron casos con MAD igual a cero.
-- **Interpretación:** La escala robusta basada en MAD pudo calcularse en el experimento sin divisiones por cero.
-- **Estado:** Evidencia experimental; su uso forma parte de la investigación y no de un detector definitivo.
+Esta sección conserva las hipótesis y decisiones intermedias necesarias para
+reconstruir la evolución del proyecto. Las entradas marcadas como `SUSTITUIDA`
+no son pendientes actuales.
 
-### Cola extrema de robust_z y distancia
+### Exploración inicial y división temporal
 
-- **Evidencia:** Los grupos de robust_z elevado tienen una presencia relativa mayor en trayectos de hasta 1 km que el conjunto completo evaluable. Los grupos extremos también contienen registros de rangos de distancia superiores.
-- **Interpretación:** Los valores extremos no están exclusivamente asociados a trayectos cortos.
-- **Estado:** Evidencia descriptiva; no permite asignar una causa ni una clasificación definitiva a los registros.
+- **Hipótesis inicial:** estudiar una división temporal entre datos históricos
+  y posteriores, y comparar referencias basadas en todo el histórico con otras
+  que priorizaran contexto reciente o comparable.
+- **Evidencia:** la exploración disponible contenía observaciones de 2024, 2025
+  y 2026. La separación temporal permitía construir referencias sin utilizar
+  información futura del periodo evaluado. También se informó que las
+  mediciones de 2026 podían ser más fiables por la evolución de los dispositivos;
+  esta última consideración se trató como información proporcionada, no como
+  propiedad estadística demostrada.
+- **Decisión v1:** 2024–2025 se destinan a construcción de baselines y 2026 a
+  evaluación. La hipótesis de mantener la división sin concretar queda
+  `SUSTITUIDA` por esta decisión.
 
-### Ausencia de ground truth de ineficiencia
+### Evolución del baseline A/B30/B50
 
-- **Evidencia:** Los análisis disponibles describen desviaciones respecto a referencias históricas, pero no existe una variable que confirme qué registros representan ineficiencias reales.
-- **Interpretación:** Ningún registro puede considerarse todavía una ineficiencia real a partir de estos experimentos.
-- **Estado:** Limitación confirmada para la evaluación metodológica.
+- **Hipótesis inicial:** utilizar un baseline histórico general por vehículo y
+  estudiar si la distancia aportaba contexto relevante.
+- **Experimento:** se compararon A, B30 y B50. A representa la referencia del
+  vehículo; B30 y B50 emplean contexto vehículo-rango con mínimos respectivos
+  de 30 y 50 observaciones y recurren al vehículo cuando el contexto no alcanza
+  el mínimo.
+- **Evidencia:** las distribuciones de L/100 km variaban por rango dentro de un
+  mismo vehículo. B30 ofreció mayor uso del contexto que B50 sin perder el
+  fallback, mientras los análisis de sensibilidad mostraron el compromiso
+  entre excluir trayectos cortos y conservar cobertura.
+- **Decisión v1:** B30 con un mínimo de 100 observaciones históricas válidas por
+  vehículo. A, B50 y la selección aún abierta quedan `SUSTITUIDAS` como
+  decisiones operativas, aunque se conservan como comparadores experimentales.
 
-### Umbral de robust_z y regla de clasificación
+### MAD, robust_z y regla de consumo
 
-- **Evidencia:** Se analizaron puntos de comparación de robust_z, incluidos valores superiores a 1, 2, 3, 4, 5 y grupos de cola más extrema, sin convertirlos en alertas.
-- **Interpretación:** Las distribuciones observadas no justifican por sí mismas seleccionar un umbral estadístico concreto.
-- **Estado:** No existe todavía un umbral definitivo de robust_z ni una regla definitiva de clasificación.
+- **Hipótesis inicial:** estudiar estadísticas robustas antes de recurrir a
+  modelos más complejos y analizar valores extremos sin convertirlos
+  directamente en alertas.
+- **Evidencia:** se calcularon mediana, MAD, desviación relativa y `robust_z`
+  sobre B30. En el análisis de 2026, MAD pudo calcularse para 6.665 registros
+  evaluables sin casos de MAD igual a cero. Las colas extremas aparecieron con
+  mayor frecuencia relativa en trayectos cortos, pero no exclusivamente en
+  ellos y sin evidencia causal.
+- **Experimento:** se compararon reglas AND/OR y distintos puntos de corte, y se
+  realizó un benchmark semi-sintético mediante perturbaciones controladas del
+  consumo.
+- **Decisión v1:** mediana y MAD históricas, y regla estricta
+  `relative_deviation > 0.50 AND robust_z > 2`. La ausencia de umbral definitivo
+  y las demás reglas candidatas quedan `SUSTITUIDAS` para la v1.
 
-### Siguiente paso metodológico
+### De «tiempos de parada» a señal temporal
 
-- **Evidencia:** Los experimentos permiten construir un baseline contextual B30 y calcular medidas robustas de desviación sobre 2026.
-- **Interpretación:** El siguiente paso será diseñar y evaluar un detector de posibles ineficiencias que combine el baseline contextual y medidas robustas de desviación.
-- **Estado:** Pendiente de evaluación; no se asumirá todavía que un umbral estadístico concreto sea correcto.
+- **Hipótesis inicial (`SUSTITUIDA`):** estudiar tiempos de parada a partir de
+  la duración disponible.
+- **Evidencia:** los datos no permiten separar conducción, espera y parada. La
+  duración total dividida por distancia sí permite comparar el comportamiento
+  temporal de viajes del mismo vehículo en rangos de distancia semejantes. El
+  indicador resultó especialmente inestable en viajes de hasta 1 km.
+- **Decisión v1:** definir la señal como `minutes_per_km`, excluir de su
+  evaluación viajes de hasta 1 km y aplicar B30, mediana, MAD y la misma regla
+  conjunta que en consumo. No se denomina ni interpreta como tiempo de parada.
 
-## Información proporcionada
+### Análisis carga-consumo
 
-- Según información proporcionada por el responsable del proyecto, los datos de 2026 se consideran más fiables debido a la evolución de los dispositivos o del sistema de medición. Esta afirmación se registra como información proporcionada sobre los datos y no como un hecho estadístico demostrado.
+- **Hipótesis inicial (`SUSTITUIDA` para la v1):** incorporar la carga como
+  contexto explicativo del consumo.
+- **Evidencia:** no existe una variable de carga disponible en los datos
+  accesibles.
+- **Decisión v1:** no implementar análisis carga-consumo ni inferir carga desde
+  otras variables. Solo podría reabrirse con una variable fiable futura.
 
-## Pendiente
+### Semántica de REVIEW y consolidación
 
-- Método definitivo de detección.
-- Variables definitivas utilizadas por el detector.
-- Umbrales de alerta.
-- Método definitivo de construcción del *baseline*.
-- División temporal exacta del conjunto de datos.
-- Métricas de evaluación.
-- Estrategia de evaluación sin *ground truth*.
-- Formato definitivo de las alertas.
-- Arquitectura definitiva de N8N.
-- Modelo GPT concreto.
-- Interfaz conversacional.
+- **Problema metodológico:** no existe *ground truth* que permita etiquetar
+  viajes como ineficiencias reales ni atribuir causas a una desviación.
+- **Decisión semántica:** `REVIEW` identifica una desviación a revisar;
+  `NO_RELEVANT_DEVIATION` indica que no se cumplen conjuntamente los criterios;
+  `NOT_EVALUABLE` indica ausencia de evaluación y no normalidad.
+- **Evolución técnica:** tras implementar señales independientes, se añadió una
+  consolidación que conserva ambas salidas, calcula `overall_status`,
+  `analysis_coverage` (`COMPLETE`, `PARTIAL`, `NONE`) y `review_signals` sin
+  recalcular los detectores.
 
-## Decisión confirmada — Evaluación operacional SQL por `trip_id`
+### Integración SQL y API
 
-- `POST /evaluate` continúa siendo el endpoint analítico genérico y recibe el contrato completo del viaje.
-- `POST /evaluate-trip` constituye la integración operacional SQL basada en el identificador y devuelve el mismo resultado consolidado; no está disponible en modo CSV.
-- N8N podrá solicitar una evaluación enviando únicamente `trip_id`.
-- `SqlHistoricalRepository` es responsable de la lectura parametrizada del viaje y de adaptar las unidades al contrato analítico, incluida la conversión de `Consumo` de litros a mililitros y la preservación de `NULL` como `None`.
-- La incorporación de esta entrada no modifica detectores, baselines, umbrales, reglas de consolidación ni el comportamiento de `/evaluate`.
+- **Hipótesis inicial:** separar SQL Server, análisis, orquestación n8n y
+  explicación GPT.
+- **Evolución:** primero se mantuvo CSV como interfaz local; después se aisló un
+  repositorio SQL de solo lectura, se incorporó FastAPI y se añadió
+  `/evaluate-trip` para recuperar un viaje por `trip_id` sin cambiar el contrato
+  de `/evaluate`.
+- **Decisión v1:** SQL Server es la fuente operacional, CSV permanece para
+  desarrollo y FastAPI es la frontera estable. La integración SQL Server → API
+  fue validada externamente; n8n y GPT permanecen fuera del motor analítico.
 
-## En investigación
+### Evaluación semi-sintética
 
-- Existen valores extremos en las variables analizadas; deberán estudiarse antes de establecer el método definitivo de detección.
+- **Motivación:** la falta de *ground truth* impedía interpretar registros
+  reales como positivos o negativos confirmados.
+- **Evolución:** se introdujeron perturbaciones controladas de +25 %, +50 %,
+  +100 %, +200 % y +500 % sobre consumo y señal temporal, preservando la
+  separación 2024–2025/2026 y evitando contaminar baselines.
+- **Decisión v1:** usar *recall*, tasa marcada del control y especificidad
+  experimental solo como métricas del experimento semi-sintético. No se
+  interpretan como precisión frente a ineficiencias reales.
 
-## Trazabilidad
+### Evaluación conversacional v1
 
-## Decisión confirmada — Evaluación del componente conversacional
+- **Diseño:** muestra funcional estratificada de 20 casos, con respuestas
+  generadas antes de la puntuación y una rúbrica de fidelidad y utilidad fijada
+  previamente.
+- **Evidencia:** se obtuvo un 98,96 % de cumplimiento sobre criterios aplicables
+  y 3,95/5 de claridad/utilidad media, con un único incumplimiento de fidelidad
+  numérica.
+- **Decisión v1:** la evaluación conversacional queda cerrada para el modelo y
+  *prompt* congelados. El LLM explica la salida determinista y no decide
+  anomalías. El workflow empleado se conserva mediante un export sanitizado.
 
-- Los detectores deterministas y la consolidación son la fuente de verdad; el
-  LLM generará explicaciones sin modificar ni inferir estados analíticos.
-- Al no existir *ground truth* de ineficiencias reales, la evaluación comprueba
-  fidelidad numérica y semántica a la salida analítica y aspectos cualitativos
-  mediante rúbrica. No valida causalidad ni rendimiento frente a ineficiencias.
-- Las métricas semi-sintéticas de los detectores corresponden a una evaluación
-  distinta y no son resultados del componente conversacional.
-- Se propone una muestra funcional estratificada de hasta 20 casos reales de
-  2026: cinco por cada estrato definido en `docs/metodologia.md`. No se considera
-  estadísticamente representativa de la operación logística.
-- La selección es reproducible y registra carencias si no existen suficientes
-  casos; nunca se fuerzan categorías mediante cambios en reglas o datos.
+### Tratamiento posterior de Consumo=NULL
 
-Las decisiones registradas pueden cambiar durante la investigación. Cualquier cambio posterior debe registrarse en este documento, indicando su estado y la información o evidencia que lo justifica.
+- **Riesgo detectado:** el repositorio SQL conservaba `NULL` como `None`, pero
+  la normalización intentaba convertirlo directamente a número y podía impedir
+  que el viaje llegara a los detectores y a la API.
+- **Evidencia:** un test mínimo reprodujo la excepción en la normalización y
+  los tests posteriores verificaron todo el recorrido con dobles, sin acceder a
+  SQL Server real.
+- **Decisión v1:** `NULL` es ausencia de dato, nunca cero. Consumo produce
+  `NOT_EVALUABLE` con `MISSING_CONSUMPTION`; temporal puede continuar y la
+  consolidación puede devolver cobertura `PARTIAL`.
 
-## Decisión confirmada — Origen de datos del histórico
+## Pendientes y límites futuros
 
-- SQL Server y `dbo.WF_OPERATIVA_CAMIONES` constituyen la fuente operacional del histórico en el entorno empresarial.
-- El repositorio SQL realiza exclusivamente lectura de las columnas requeridas y limita el histórico al intervalo `[2024-01-01, 2026-01-01)` mediante parámetros SQL.
-- `Consumo` se almacena/proporciona en litros en la tabla SQL. `SqlHistoricalRepository` lo normaliza a mililitros (`litros × 1000`) al construir el registro que consume la capa analítica.
-- CSV permanece disponible y es el origen predeterminado para desarrollo y pruebas; su ruta continúa configurándose mediante `TFM_DATA_PATH`.
-- La selección entre `csv` y `sql` se configura con `TFM_DATA_SOURCE`.
-- Las credenciales y datos de conexión se proporcionan externamente mediante variables de entorno y no se versionan.
-- Esta decisión afecta únicamente a la adquisición del histórico. No cambia reglas, umbrales, baselines, consolidación ni ningún otro comportamiento analítico de `DetectorV1` o `TemporalDetectorV1`.
+- Obtener *ground truth* o validación experta operacional si fuera viable.
+- Incorporar evaluación interjueces en evaluaciones humanas posteriores.
+- Productivizar despliegue, autenticación, observabilidad, gestión de secretos
+  y operación de SQL Server, FastAPI y n8n.
+- Implementar distribución de alertas si entra en el alcance futuro.
+- Evaluar otros modelos o *prompts* antes de generalizar la evaluación v1.
+- Revisar carga-consumo solo si se incorpora una variable de carga fiable.
 
-## Decisión confirmada — División temporal del experimento
-
-- El baseline inicial del detector se construirá utilizando los registros correspondientes a 2024 y 2025.
-- El comportamiento del detector se evaluará sobre registros correspondientes a 2026.
-- La división será temporal y no aleatoria.
-- La selección se justifica por la necesidad de evitar utilizar información futura en la construcción del baseline.
-- Según información proporcionada sobre los datos, las mediciones de 2026 se consideran más fiables debido a la evolución de los dispositivos de medición. Esta consideración se tratará como información proporcionada y no como una propiedad estadísticamente demostrada.
-- La decisión podrá revisarse si durante la evaluación se observa que la calidad o cantidad de datos impide construir un baseline adecuado.
-
-## Decisión confirmada — Criterio inicial de registros para el *baseline* por vehículo
-
-- Se utilizarán 100 registros históricos válidos como criterio inicial para construir el *baseline* de cada vehículo.
-- Este criterio podrá revisarse después de evaluar la estabilidad del *baseline*.
-
-## Decisión definitiva — Detector de consumo v1
-
-- **Baseline seleccionado:** B30, definido por vehículo y rango de distancia cuando el contexto dispone de un mínimo de 30 observaciones, con *fallback* al *baseline* del vehículo cuando no se alcanza ese mínimo.
-- **Medida robusta seleccionada:** mediana y MAD calculadas exclusivamente sobre el histórico.
-- **Regla seleccionada:** desviación relativa > 50 % AND `robust_z` > 2.
-- **Benchmark definitivo alineado:** Sobre 6.427 registros evaluables, la regla marcó el 10,14 % del conjunto de control y obtuvo una especificidad experimental del 89,86 %. El *recall* fue del 21,44 % para una perturbación de +25 %, del 48,87 % para +50 %, del 82,70 % para +100 %, del 92,95 % para +200 % y del 98,38 % para +500 %.
-- **Alcance de las métricas:** Estas cifras proceden de perturbaciones semi-sintéticas y de un control experimental. No representan precisión, sensibilidad ni especificidad frente a ineficiencias reales. El conjunto de control no constituye un *ground truth* negativo empresarial.
-- **Interpretación de la salida:** Todo caso marcado deberá interpretarse únicamente como «desviación a revisar».
-- **Estado:** Decisión metodológica definitiva para la primera versión del detector de consumo.
-
-## Decisión confirmada — DetectorTemporalV1
-
-- **Interpretación:** «desviación temporal respecto al comportamiento histórico del vehículo en viajes de distancia comparable».
-- **Variable:** `minutes_per_km`, calculada como duración en minutos dividida por distancia en kilómetros.
-- **Elegibilidad:** La señal temporal v1 se limita a viajes de 2026 con duración positiva, distancia superior a 1 km y vehículo con al menos 100 observaciones históricas válidas en 2024-2025.
-- Los viajes de hasta 1 km quedan fuera porque `minutes_per_km` presenta en ese rango un régimen estadístico claramente más inestable, con dispersión, percentiles extremos y porcentajes de superación superiores. Esta exclusión no implica que dichos registros sean inválidos.
-- **Baseline:** B30 por vehículo y rango de distancia cuando existen al menos 30 observaciones históricas, con *fallback* al baseline del vehículo; se utilizan mediana y MAD históricas.
-- **Regla seleccionada:** desviación relativa > 50 % AND `robust_z` > 2.
-- **Benchmark semi-sintético:** Sobre 9.644 casos evaluables, la regla marcó el 13,03 % del control experimental y obtuvo una especificidad experimental del 86,97 %. El *recall* fue del 24,83 % para una perturbación de +25 %, del 40,18 % para +50 %, del 65,84 % para +100 %, del 87,33 % para +200 % y del 98,66 % para +500 %.
-- **Alcance de las métricas:** Estas métricas proceden de perturbaciones temporales artificiales controladas y no representan rendimiento frente a ineficiencias reales.
-- **Semántica:** `REVIEW` identifica una desviación temporal a revisar. No confirma ineficiencias ni permite atribuir una explicación concreta al comportamiento observado.
-- **Estado:** Decisión metodológica confirmada para la primera versión del detector temporal.
-
-## Decisión confirmada — Consolidación de resultados analíticos
-
-- Los detectores de consumo y comportamiento temporal son las fuentes de verdad analítica y conservan íntegramente sus resultados individuales en la salida consolidada.
-- `overall_status` será `REVIEW` si cualquier señal está en revisión; será `NO_RELEVANT_DEVIATION` si ninguna está en revisión y al menos una es evaluable; y será `NOT_EVALUABLE` si ambas son no evaluables.
-- `analysis_coverage` será `COMPLETE` cuando ambas señales sean evaluables, `PARTIAL` cuando exactamente una sea no evaluable y `NONE` cuando ambas sean no evaluables.
-- `review_signals` contendrá exclusivamente las señales individuales con estado `REVIEW`.
-- La API constituye una frontera de acceso a la capa analítica y no decide estados, cobertura ni revisiones.
-- GPT no decidirá desviaciones analíticas. Una futura capa de explicación podrá describir resultados ya calculados, pero no sustituir ni alterar las decisiones de los detectores.
-- La integración con N8N o GPT permanece como fase posterior y no se registra todavía como implementada.
+Estos límites no reabren las decisiones analíticas cerradas para la v1.

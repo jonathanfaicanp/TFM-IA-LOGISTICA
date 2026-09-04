@@ -1,16 +1,67 @@
 # TFM-IA-LOGISTICA
 
-Repositorio de trabajo del TFM. La documentación técnica inicial se mantiene en [`docs/`](docs/).
+Prototipo de un sistema analítico para identificar desviaciones de consumo y
+comportamiento temporal en viajes logísticos, consolidar ambas señales y
+exponer el resultado mediante una API. `REVIEW` significa desviación que
+requiere revisión, no ineficiencia confirmada.
+
+## Estado del prototipo
+
+La versión v1 incluye detectores deterministas de consumo y comportamiento
+temporal, baselines robustos, consolidación, fuentes CSV y SQL Server, una API
+FastAPI, benchmarks semi-sintéticos y una evaluación conversacional cerrada
+sobre 20 casos estratificados. También conserva un export sanitizado del
+workflow n8n usado para esa evaluación.
+
+El LLM no forma parte del motor de detección: únicamente explica su salida
+estructurada. La orquestación operacional n8n se ha probado fuera del
+repositorio, pero no se presenta aquí como despliegue productivo ni como prueba
+automatizada de extremo a extremo.
+
+## Instalación y tests
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -v
+```
+
+La suite actual contiene 127 tests. No representa cobertura productiva
+completa: SQL Server real, n8n y el LLM no se ejercitan mediante tests
+automáticos end-to-end dentro del repositorio.
+
+## Ejecución de la API
+
+En modo CSV se usa por defecto `data/datos_operativa.csv`; `TFM_DATA_PATH`
+permite indicar otra ruta local:
+
+```powershell
+$env:TFM_DATA_SOURCE = "csv"
+$env:TFM_DATA_PATH = "data/datos_operativa.csv"
+python -m uvicorn src.api:app --host 127.0.0.1 --port 8000
+```
+
+Para SQL Server se configura `TFM_DATA_SOURCE=sql` y se proporcionan fuera del
+repositorio `TFM_DB_SERVER`, `TFM_DB_DATABASE`, `TFM_DB_USER`,
+`TFM_DB_PASSWORD` y, opcionalmente, `TFM_DB_DRIVER`:
+
+```powershell
+$env:TFM_DATA_SOURCE = "sql"
+python -m uvicorn src.api:app --host 127.0.0.1 --port 8000
+```
+
+No deben versionarse credenciales ni cadenas de conexión. La API expone
+`GET /health`, `POST /evaluate` y `POST /evaluate-trip`; el último requiere el
+modo SQL y recupera el viaje mediante `trip_id`.
 
 ## Documentación
 
-- [Registro de decisiones](docs/decision-log.md)
 - [Requisitos](docs/requisitos.md)
 - [Arquitectura](docs/arquitectura.md)
 - [Metodología](docs/metodologia.md)
+- [Registro de decisiones](docs/decision-log.md)
+- [Workflow n8n de evaluación conversacional](n8n/README.md)
 
-## Estado
-
-El proyecto se encuentra en fase de diseño y documentación. Ya se han registrado decisiones iniciales, incluidas la división temporal del experimento y un criterio inicial para la construcción del *baseline* por vehículo.
-
-El repositorio no contiene datos empresariales, credenciales ni conexiones a SQL Server. Tampoco contiene implementaciones, integraciones ni una arquitectura definitiva. Los componentes analítico, de orquestación y de generación de explicaciones siguen siendo propuestas sujetas a validación.
+Los datos empresariales y los artefactos reales de evaluación permanecen bajo
+`data/`, fuera de Git.
