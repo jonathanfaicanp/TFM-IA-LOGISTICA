@@ -112,10 +112,17 @@ no son pendientes actuales.
   modelos más complejos y analizar valores extremos sin convertirlos
   directamente en alertas.
 - **Evidencia:** se calcularon mediana, MAD, desviación relativa y `robust_z`
-  sobre B30. En el análisis de 2026, MAD pudo calcularse para 6.665 registros
-  evaluables sin casos de MAD igual a cero. Las colas extremas aparecieron con
+  sobre B30. En la fase exploratoria previa de análisis MAD sobre datos de 2026,
+  MAD pudo calcularse para 6.665 registros evaluables sin casos de MAD igual a
+  cero. Las colas extremas aparecieron con
   mayor frecuencia relativa en trayectos cortos, pero no exclusivamente en
   ellos y sin evidencia causal.
+- **Conciliación de poblaciones:** los 6.665 registros pertenecen a esa fase
+  exploratoria; los 6.427 corresponden a la población final evaluable del
+  benchmark de consumo v1 tras aplicar los criterios definitivos de
+  elegibilidad, incluido el mínimo de 100 observaciones históricas válidas por
+  vehículo. La diferencia refleja el cambio de elegibilidad entre fases, no
+  una contradicción ni un recálculo de las métricas publicadas.
 - **Experimento:** se compararon reglas AND/OR y distintos puntos de corte, y se
   realizó un benchmark semi-sintético mediante perturbaciones controladas del
   consumo.
@@ -182,7 +189,7 @@ no son pendientes actuales.
 ### Evaluación conversacional v1
 
 - **Diseño:** muestra funcional estratificada de 20 casos, con respuestas
-  generadas antes de la puntuación y una rúbrica de fidelidad y utilidad fijada
+  generadas mediante n8n antes de la puntuación y una rúbrica de fidelidad y utilidad fijada
   previamente.
 - **Evidencia:** se obtuvo un 98,96 % de cumplimiento sobre criterios aplicables
   y 3,95/5 de claridad/utilidad media, con un único incumplimiento de fidelidad

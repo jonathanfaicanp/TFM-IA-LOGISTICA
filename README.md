@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-La suite actual contiene 127 tests. No representa cobertura productiva
+La suite actual contiene 130 tests. No representa cobertura productiva
 completa: SQL Server real, n8n y el LLM no se ejercitan mediante tests
 automáticos end-to-end dentro del repositorio.
 
