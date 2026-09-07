@@ -43,6 +43,8 @@ def normalize_trip(row: Mapping[str, object]) -> NormalizedTrip:
     start = datetime.fromisoformat(str(row["Fecha de inicio"]).strip())
     distance_km = parse_number(row["Distancia"]) / 1000
     raw_consumption = row["Consumo"]
+    if isinstance(raw_consumption, str) and not raw_consumption.strip():
+        raw_consumption = None
     consumption_liters = (
         None if raw_consumption is None else parse_number(raw_consumption) / 1000
     )

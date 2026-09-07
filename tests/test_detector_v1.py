@@ -26,6 +26,27 @@ class DetectorV1Tests(unittest.TestCase):
         values = (.5, 1.5, 3, 7, 15, 30, 75, 200, 301)
         self.assertEqual(tuple(distance_range(value) for value in values), DISTANCE_RANGES)
 
+    def test_blank_consumption_is_missing_and_not_evaluable(self):
+        detector = self._detector()
+        for consumption in ("", "   ", "\t "):
+            with self.subTest(consumption=consumption):
+                source = row(date="2026-01-01", consumption=consumption)
+                trip = normalize_trip(source)
+                self.assertIsNone(trip.consumo_litros)
+                self.assertIsNone(trip.consumo_l_100km)
+                self.assertEqual(trip.validation_reason, "MISSING_CONSUMPTION")
+                result = detector.evaluate(source)
+                self.assertEqual(result.status, DetectionStatus.NOT_EVALUABLE)
+                self.assertEqual(result.reason, "MISSING_CONSUMPTION")
+
+    def test_numeric_consumption_formats_are_preserved(self):
+        for consumption in (1500, 1500.0, "1500", "1500.0", "1500,0", " 1.500,0 "):
+            with self.subTest(consumption=consumption):
+                trip = normalize_trip(row(distance=2000, consumption=consumption))
+                self.assertEqual(trip.consumo_litros, 1.5)
+                self.assertEqual(trip.consumo_l_100km, 75.0)
+                self.assertIsNone(trip.validation_reason)
+
     def test_contextual_baseline_at_30_observations(self):
         history = [normalize_trip(row(distance=1000, consumption=90 + index % 3)) for index in range(30)]
         history += [normalize_trip(row(distance=3000, consumption=300 + index)) for index in range(70)]
