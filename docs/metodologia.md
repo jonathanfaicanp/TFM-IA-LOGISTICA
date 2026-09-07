@@ -1,6 +1,6 @@
 # Metodología
 
-Este documento registrará la metodología de trabajo y las evidencias generadas durante el TFM.
+Este documento registra la metodología de trabajo y las evidencias generadas durante el TFM.
 
 ## Decisiones confirmadas
 
@@ -8,34 +8,35 @@ Este documento registrará la metodología de trabajo y las evidencias generadas
 
 - Los detectores deterministas `DetectorV1` y `TemporalDetectorV1`, junto con
   las reglas de consolidación existentes, son la fuente de verdad sobre las
-  desviaciones analíticas. El LLM se limitará a explicar esa salida y no podrá
+  desviaciones analíticas. El LLM se limita a explicar esa salida y no puede
   decidir, corregir ni reinterpretar los estados.
 - No existe *ground truth* empresarial que confirme ineficiencias reales. Por
   ello, `REVIEW` significa exclusivamente «desviación a revisar» y nunca una
   ineficiencia confirmada ni una causa determinada.
-- La evaluación conversacional medirá fidelidad numérica y semántica respecto
-  a la salida estructurada de la capa analítica. También valorará claridad y
+- La evaluación conversacional mide fidelidad numérica y semántica respecto
+  a la salida estructurada de la capa analítica. También valora claridad y
   utilidad mediante una rúbrica cualitativa. No mide la capacidad de los
   detectores para identificar ineficiencias reales.
 - Las métricas obtenidas mediante perturbaciones semi-sintéticas para evaluar
   los detectores pertenecen a otro experimento y no deben confundirse con la
   evaluación de las explicaciones conversacionales.
 
-La muestra inicial propuesta contiene hasta 20 casos reales de 2026,
+La muestra final de la evaluación v1 contiene 20 casos reales de 2026,
 seleccionados como muestra de evaluación funcional estratificada del componente
 conversacional. No es una muestra estadísticamente representativa de toda la
-operación logística. Los estratos provisionales son:
+operación logística. El diseño final comprende cuatro estratos:
 
-- hasta 5 `NO_RELEVANT_DEVIATION` con cobertura `COMPLETE`;
-- hasta 5 `REVIEW` con cobertura `COMPLETE`;
-- hasta 5 `NOT_EVALUABLE` con cobertura `NONE`;
-- hasta 5 casos con cobertura `PARTIAL`.
+- 5 `NO_RELEVANT_DEVIATION` con cobertura `COMPLETE`;
+- 5 `REVIEW` con cobertura `COMPLETE`;
+- 5 `NOT_EVALUABLE` con cobertura `NONE`;
+- 5 casos con cobertura `PARTIAL`.
 
-Dentro de `REVIEW` con cobertura completa se intentará incluir, cuando existan,
-casos de consumo solamente, temporal solamente y ambas señales. La selección
+Dentro de `REVIEW` con cobertura completa, el selector prioriza, según la
+disponibilidad, casos de consumo solamente, temporal solamente y ambas señales. La selección
 es determinista, no altera detectores ni umbrales y no fabrica observaciones.
 El artefacto registra la disponibilidad y cualquier carencia por estrato cuando
-los datos no permiten alcanzar cinco casos.
+los datos no permiten alcanzar cinco casos. En la evaluación v1 cerrada se
+alcanzaron cinco casos en cada estrato.
 
 La infraestructura vive fuera del código productivo en
 `evaluation/conversational_dataset.py`. Construye una sola instancia de
@@ -117,15 +118,20 @@ Los valores `N/A` se excluyen del denominador al calcular las tasas de
 cumplimiento. `clarity_utility` se analiza por separado y no forma parte de
 dichas tasas.
 
-### Procedimiento manual de evaluación con GPT-5.6 Luna
+### Generación mediante n8n y evaluación humana con GPT-5.6 Luna
 
-El procedimiento se ejecuta sin integrar ni invocar automáticamente al modelo:
+Las utilidades Python de `evaluation/` preparan los casos, incorporan respuestas
+y puntuaciones humanas y calculan resúmenes; no invocan automáticamente al LLM.
+La generación real de las respuestas de la v1 se realizó mediante n8n, que sí
+invocó a GPT-5.6 Luna. El workflow se conserva sanitizado en
+`n8n/conversational_evaluation_v1.json`; su ejecución requiere una instancia de
+n8n, credenciales propias y acceso al servicio externo del modelo.
 
 1. `evaluation/prepare_llm_evaluation.py` lee el conjunto anonimizado y genera
    una ficha determinista por caso. Cada ficha conserva `case_id`, estrato y
    resultado analítico, y comienza con `model`, `response` y las puntuaciones
    manuales vacíos.
-2. La respuesta producida externamente con GPT-5.6 Luna se registra junto con
+2. La respuesta generada mediante n8n con GPT-5.6 Luna se registra junto con
    el nombre del modelo. Una persona asigna `1`, `0`, `null` o `N/A` a C1–C6,
    una valoración opcional de claridad y utilidad entre 1 y 5, y observaciones
    opcionales. El código no deduce puntuaciones a partir de la respuesta.
@@ -235,30 +241,8 @@ de la evaluación:
 - los resultados no deben generalizarse a otros modelos o *prompts* sin una
   nueva evaluación.
 
-## Decisiones provisionales
+## Cierre metodológico v1
 
-No hay decisiones metodológicas provisionales documentadas todavía.
-
-## Supuestos
-
-No hay supuestos metodológicos documentados todavía.
-
-## Decisiones pendientes
-
-No hay decisiones metodológicas pendientes documentadas todavía.
-
-## Cuestiones que requieren investigación
-
-No hay cuestiones de investigación metodológica documentadas todavía.
-
-## Cuestiones que requieren validación con datos
-
-No hay cuestiones de validación con datos metodológicas documentadas todavía.
-
-## Estructura prevista del documento
-
-- Objetivo y alcance de cada fase.
-- Actividades realizadas.
-- Evidencias y resultados.
-- Criterios de validación.
-- Riesgos, limitaciones y acciones de seguimiento.
+El diseño y la evaluación conversacional v1 están cerrados. Sus límites de
+validez se recogen arriba; las validaciones futuras con *ground truth* e
+interjueces permanecen como trabajo posterior en `docs/decision-log.md`.

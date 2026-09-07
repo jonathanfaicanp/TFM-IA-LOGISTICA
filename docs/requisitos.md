@@ -20,7 +20,7 @@ Estados: `IMPLEMENTADO`, `PARCIAL`, `FUERA DE ALCANCE V1` y
 | RF-08 | IMPLEMENTADO | Separar temporalmente 2024–2025 para baselines y 2026 para evaluación. |
 | RF-09 | IMPLEMENTADO | Construir baselines con observaciones históricas válidas de 2024–2025. |
 | RF-10 | FUERA DE ALCANCE V1 | La v1 genera estados estructurados `REVIEW` para desviaciones que requieren revisión, pero no incluye un subsistema de distribución de alertas. La notificación automática puede abordarse como trabajo futuro. |
-| RF-11 | PARCIAL | Explicar resultados sin alterar la decisión analítica. El workflow n8n se probó externamente y el de evaluación está sanitizado; la generación LLM no es un componente ejecutable del repositorio. |
+| RF-11 | PARCIAL | Explicar resultados sin alterar la decisión analítica. El repositorio contiene el workflow n8n sanitizado de evaluación y las utilidades Python de evaluación. La generación requiere n8n, credenciales propias y servicios externos. La integración operacional se probó externamente, pero no está completamente versionada ni es reproducible solo con el repositorio. |
 
 ## Requisitos no funcionales
 
