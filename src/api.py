@@ -5,11 +5,11 @@ from __future__ import annotations
 import os
 from collections.abc import Mapping
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .analytical_service import AnalyticalService
 from .consolidation import AnalysisCoverage
@@ -20,6 +20,7 @@ from .sql_repository import SqlHistoricalRepository
 DEFAULT_DATA_PATH = Path("data/datos_operativa.csv")
 DATA_PATH_ENVIRONMENT_VARIABLE = "TFM_DATA_PATH"
 DATA_SOURCE_ENVIRONMENT_VARIABLE = "TFM_DATA_SOURCE"
+MAX_PERIOD_TRIPS = 1000
 
 
 def build_analytical_service(environment: Mapping[str, str] | None = None) -> AnalyticalService:
@@ -69,6 +70,52 @@ class HealthResponse(BaseModel):
     status: str
 
 
+class PeriodRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    start_date: date
+    end_date: date
+
+    @field_validator("start_date", "end_date", mode="before")
+    @classmethod
+    def explicit_date(cls, value):
+        if not isinstance(value, str) or len(value) != 10:
+            raise ValueError("Use fechas explícitas YYYY-MM-DD.")
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError:
+            raise ValueError("Use fechas explícitas YYYY-MM-DD.") from None
+        if parsed.isoformat() != value:
+            raise ValueError("Use fechas explícitas YYYY-MM-DD.")
+        return parsed
+
+    @model_validator(mode="after")
+    def ordered_dates(self):
+        if self.end_date < self.start_date:
+            raise ValueError("end_date no puede ser anterior a start_date.")
+        if self.end_date == date.max:
+            raise ValueError("end_date debe ser anterior a 9999-12-31.")
+        return self
+
+    def bounds(self) -> tuple[datetime, datetime]:
+        return (
+            datetime.combine(self.start_date, time.min),
+            datetime.combine(self.end_date + timedelta(days=1), time.min),
+        )
+
+
+class VehiclePeriodRequest(PeriodRequest):
+    matricula: str = Field(min_length=1, max_length=32)
+
+    @field_validator("matricula")
+    @classmethod
+    def clean_plate(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("matricula no puede estar vacía.")
+        return value
+
+
 class ConsolidatedResponse(BaseModel):
     trip_id: str | None
     vehicle_id: str
@@ -78,6 +125,50 @@ class ConsolidatedResponse(BaseModel):
     analysis_coverage: AnalysisCoverage
     review_signals: list[str]
     signals: dict[str, dict]
+
+
+class PeriodResponse(BaseModel):
+    start_date: date
+    end_date: date
+    total_trips: int
+    status_counts: dict[DetectionStatus, int]
+    coverage_counts: dict[AnalysisCoverage, int]
+
+
+class VehiclePeriodResponse(PeriodResponse):
+    matricula: str
+    results: list[ConsolidatedResponse]
+
+
+class ReviewVehicleResponse(BaseModel):
+    matricula: str | None
+    review_count: int
+    trip_ids: list[str | None]
+
+
+class ReviewPeriodResponse(PeriodResponse):
+    vehicles: list[ReviewVehicleResponse]
+
+
+def evaluate_period(payload: PeriodRequest, request: Request, matricula: str | None = None):
+    repository = request.app.state.trip_repository
+    if request.app.state.data_source != "sql" or repository is None:
+        raise HTTPException(status_code=503, detail="La consulta por periodo requiere acceso operacional SQL.")
+    start, end = payload.bounds()
+    rows = repository.load_operational_rows_between(
+        start, end, matricula=matricula, limit=MAX_PERIOD_TRIPS + 1
+    )
+    if len(rows) > MAX_PERIOD_TRIPS:
+        raise HTTPException(status_code=413, detail="El periodo supera 1000 viajes; reduzca el rango de fechas.")
+    results = [request.app.state.analytical_service.evaluate(row).to_dict() for row in rows]
+    summary = {
+        "start_date": payload.start_date,
+        "end_date": payload.end_date,
+        "total_trips": len(results),
+        "status_counts": {status.value: sum(r["overall_status"] == status.value for r in results) for status in DetectionStatus},
+        "coverage_counts": {coverage.value: sum(r["analysis_coverage"] == coverage.value for r in results) for coverage in AnalysisCoverage},
+    }
+    return rows, results, summary
 
 
 def create_app(
@@ -140,6 +231,24 @@ def create_app(
             )
         result = request.app.state.analytical_service.evaluate(trip)
         return result.to_dict()
+
+    @application.post("/evaluate-vehicle-period", response_model=VehiclePeriodResponse)
+    def evaluate_vehicle_period(payload: VehiclePeriodRequest, request: Request) -> dict:
+        _, results, summary = evaluate_period(payload, request, payload.matricula)
+        return {**summary, "matricula": payload.matricula, "results": results}
+
+    @application.post("/review-vehicles-period", response_model=ReviewPeriodResponse)
+    def review_vehicles_period(payload: PeriodRequest, request: Request) -> dict:
+        rows, results, summary = evaluate_period(payload, request)
+        groups = {}
+        for row, result in zip(rows, results):
+            if result["overall_status"] != DetectionStatus.REVIEW.value:
+                continue
+            plate = row.get("matricula")
+            group = groups.setdefault(plate, {"matricula": plate, "review_count": 0, "trip_ids": []})
+            group["review_count"] += 1
+            group["trip_ids"].append(result["trip_id"])
+        return {**summary, "vehicles": sorted(groups.values(), key=lambda group: group["matricula"] or "")}
 
     return application
 

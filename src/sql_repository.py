@@ -59,6 +59,38 @@ WHERE [Fecha de inicio] >= ?
 """.strip()
 
 
+OPERATIONAL_PERIOD_QUERY = """
+SELECT TOP (?)
+    [Codigo Viaje],
+    [Codigo Vehiculo],
+    [Matricula] AS [matricula],
+    [Fecha de inicio],
+    [Distancia],
+    [Consumo],
+    [Duracion]
+FROM [dbo].[WF_OPERATIVA_CAMIONES]
+WHERE [Fecha de inicio] >= ?
+  AND [Fecha de inicio] < ?
+ORDER BY [Fecha de inicio], [Codigo Viaje]
+""".strip()
+
+VEHICLE_PERIOD_QUERY = """
+SELECT TOP (?)
+    [Codigo Viaje],
+    [Codigo Vehiculo],
+    [Matricula] AS [matricula],
+    [Fecha de inicio],
+    [Distancia],
+    [Consumo],
+    [Duracion]
+FROM [dbo].[WF_OPERATIVA_CAMIONES]
+WHERE [Fecha de inicio] >= ?
+  AND [Fecha de inicio] < ?
+  AND [Matricula] = ?
+ORDER BY [Fecha de inicio], [Codigo Viaje]
+""".strip()
+
+
 def _to_analytical_row(column_names: list[str], sql_row: Any) -> dict[str, object]:
     analytical_row = dict(zip(column_names, sql_row))
     consumption_liters = analytical_row["Consumo"]
@@ -161,6 +193,36 @@ class SqlHistoricalRepository:
 
             column_names = [description[0] for description in cursor.description]
             return _to_analytical_row(column_names, sql_row)
+        finally:
+            connection.close()
+
+    def load_operational_rows_between(
+        self,
+        start_datetime: datetime,
+        end_datetime: datetime,
+        *,
+        matricula: str | None = None,
+        limit: int = 1001,
+    ) -> list[dict[str, object]]:
+        """Bounded operational lookup; vehicle codes remain analytical identities.
+
+        Unlike load_rows_between, this includes the plate for presentation and
+        requires a bounded result. Existing evaluation callers remain unchanged.
+        """
+        if not 1 <= limit <= 1001:
+            raise ValueError("El límite operacional debe estar entre 1 y 1001.")
+        if end_datetime <= start_datetime:
+            raise ValueError("El intervalo SQL debe tener fin posterior al inicio.")
+        query = OPERATIONAL_PERIOD_QUERY if matricula is None else VEHICLE_PERIOD_QUERY
+        parameters = (limit, start_datetime, end_datetime)
+        if matricula is not None:
+            parameters += (matricula,)
+        connection = self._connection_factory(self.config.connection_string())
+        try:
+            cursor = connection.cursor()
+            cursor.execute(query, *parameters)
+            column_names = [description[0] for description in cursor.description]
+            return [_to_analytical_row(column_names, row) for row in cursor.fetchall()]
         finally:
             connection.close()
 

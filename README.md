@@ -27,7 +27,7 @@ python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-La suite actual contiene 130 tests. No representa cobertura productiva
+La suite actual contiene 148 tests (130 de la v1 y 18 de la ampliaci?n operacional). No representa cobertura productiva
 completa: SQL Server real, n8n y el LLM no se ejercitan mediante tests
 automáticos end-to-end dentro del repositorio.
 
@@ -65,3 +65,9 @@ modo SQL y recupera el viaje mediante `trip_id`.
 
 Los datos empresariales y los artefactos reales de evaluación permanecen bajo
 `data/`, fuera de Git.
+
+## Consultas operacionales por periodo
+
+La ampliaci?n posterior a v1 a?ade `POST /evaluate-vehicle-period` y
+`POST /review-vehicles-period`, disponibles en modo SQL. V?anse los
+[contratos, l?mites y ejemplos](docs/consulta-periodos.md).
