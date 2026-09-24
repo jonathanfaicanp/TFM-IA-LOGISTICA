@@ -9,16 +9,31 @@ anteriores `/health`, `/evaluate` y `/evaluate-trip` conservan su contrato.
 `SqlHistoricalRepository.load_operational_rows_between()` a?ade una lectura
 operacional acotada, preservando `load_rows_between()` y sus consumidores de
 evaluaci?n existentes. Utiliza dos consultas fijas: `VEHICLE_PERIOD_QUERY`
-(con `[Matricula] = ?`) y `OPERATIONAL_PERIOD_QUERY` (sin filtro de matr?cula).
+(con `[Nombre Vehiculo] = ?`) y `OPERATIONAL_PERIOD_QUERY` (sin filtro de matrícula).
 Ambas consultan `[dbo].[WF_OPERATIVA_CAMIONES]`, con `TOP (?)`, fechas
 parametrizadas y orden por `[Fecha de inicio], [Codigo Viaje]`.
 
-Seleccionan expl?citamente `Codigo Viaje`, `Codigo Vehiculo`, `Matricula`
+Seleccionan explícitamente `Codigo Viaje`, `Codigo Vehiculo`, `Nombre Vehiculo`
 (alias `matricula`), `Fecha de inicio`, `Distancia`, `Consumo` y `Duracion`.
 No hay interpolaci?n de valores ni funciones sobre la columna temporal.
-`Matricula` se usa solo para b?squeda y presentaci?n/agrupaci?n operacional;
+El campo lógico `matricula` se usa solo para búsqueda y presentación/agrupación operacional;
 `Codigo Vehiculo` sigue siendo la identidad del motor y sus referencias.
 Se reutiliza el adaptador de unidades SQL existente.
+
+Según la verificación del entorno operacional comunicada por el responsable
+de los datos, la columna física `[Matricula]` existe pero no está poblada.
+En esta fuente actual la matrícula operativa se almacena en `[Nombre Vehiculo]`,
+por lo que ambas consultas seleccionan `[Nombre Vehiculo] AS [matricula]`.
+Esta correspondencia es una particularidad verificada del entorno actual,
+no una regla universal del esquema ni una detección automática del repositorio.
+El contrato público de la API conserva el nombre `matricula`.
+
+Una misma matrícula puede estar asociada históricamente a varios códigos de
+vehículo. No se construye una correspondencia previa matrícula → código ni se
+elige un único código: cada fila conserva su propio `[Codigo Vehiculo]` y el
+servicio evalúa ese viaje con sus referencias correspondientes. La agrupación
+operacional por matrícula se realiza después de evaluar y filtrar los estados
+`REVIEW`, sin alterar el resultado de ningún viaje.
 
 ## Contrato com?n
 

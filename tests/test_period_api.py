@@ -89,6 +89,37 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["vehicles"], [])
 
+    async def test_same_plate_uses_each_vehicle_baseline_before_grouping(self):
+        historical_rows = [history(i) for i in range(100)]
+        historical_rows += [
+            {**history(i), "Codigo Vehiculo": "V2", "Consumo": history(i)["Consumo"] * 4}
+            for i in range(100)
+        ]
+        service = AnalyticalService.from_history(historical_rows)
+        self.app.state.analytical_service = service
+        rows = [
+            trip("R1", consumption=400, vehicle="V1"),
+            trip("N2", consumption=400, vehicle="V2"),
+            trip("R2", consumption=1600, vehicle="V2"),
+        ]
+        self.repository.load_operational_rows_between.return_value = rows
+        expected = [service.evaluate(row).to_dict() for row in rows]
+        self.assertEqual([r["vehicle_id"] for r in expected], ["V1", "V2", "V2"])
+        self.assertEqual([r["overall_status"] for r in expected],
+                         ["REVIEW", "NO_RELEVANT_DEVIATION", "REVIEW"])
+        response = await self.client.post(
+            "/evaluate-vehicle-period", json={**self.period, "matricula": "TEST001"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["results"], expected)
+        response = await self.client.post("/review-vehicles-period", json=self.period)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["vehicles"], [
+            {"matricula": "TEST001", "review_count": 2, "trip_ids": ["R1", "R2"]}
+        ])
+        self.assertEqual(response.json()["status_counts"]["NO_RELEVANT_DEVIATION"], 1)
+        self.assertEqual([service.evaluate(row).to_dict() for row in rows], expected)
+
     async def test_invalid_dates_rejected_before_sql(self):
         for changes in [
             {"end_date": "2026-08-31"}, {"start_date": "esta semana"},
