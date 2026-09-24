@@ -63,7 +63,7 @@ OPERATIONAL_PERIOD_QUERY = """
 SELECT TOP (?)
     [Codigo Viaje],
     [Codigo Vehiculo],
-    [Matricula] AS [matricula],
+    [Nombre Vehiculo] AS [matricula],
     [Fecha de inicio],
     [Distancia],
     [Consumo],
@@ -78,7 +78,7 @@ VEHICLE_PERIOD_QUERY = """
 SELECT TOP (?)
     [Codigo Viaje],
     [Codigo Vehiculo],
-    [Matricula] AS [matricula],
+    [Nombre Vehiculo] AS [matricula],
     [Fecha de inicio],
     [Distancia],
     [Consumo],
@@ -86,7 +86,7 @@ SELECT TOP (?)
 FROM [dbo].[WF_OPERATIVA_CAMIONES]
 WHERE [Fecha de inicio] >= ?
   AND [Fecha de inicio] < ?
-  AND [Matricula] = ?
+  AND [Nombre Vehiculo] = ?
 ORDER BY [Fecha de inicio], [Codigo Viaje]
 """.strip()
 

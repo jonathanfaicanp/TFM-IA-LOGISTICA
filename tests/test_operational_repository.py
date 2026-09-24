@@ -32,7 +32,7 @@ class OperationalRepositoryTests(unittest.TestCase):
         rows = self.repository.load_operational_rows_between(self.start, self.end, matricula=plate)
         self.cursor.execute.assert_called_once_with(VEHICLE_PERIOD_QUERY, 1001, self.start, self.end, plate)
         self.assertNotIn(plate, VEHICLE_PERIOD_QUERY)
-        self.assertIn("[Matricula] = ?", VEHICLE_PERIOD_QUERY)
+        self.assertIn("[Nombre Vehiculo] = ?", VEHICLE_PERIOD_QUERY)
         self.assertEqual(rows[0]["Codigo Vehiculo"], "INTERNAL-1")
         self.assertEqual(rows[0]["matricula"], "TEST001")
         self.assertEqual(rows[0]["Consumo"], 400)
@@ -42,6 +42,8 @@ class OperationalRepositoryTests(unittest.TestCase):
         self.repository.load_operational_rows_between(self.start, self.end, limit=10)
         self.cursor.execute.assert_called_once_with(OPERATIONAL_PERIOD_QUERY, 10, self.start, self.end)
         for query in (OPERATIONAL_PERIOD_QUERY, VEHICLE_PERIOD_QUERY):
+            self.assertIn("[Nombre Vehiculo] AS [matricula]", query)
+            self.assertNotIn("[Matricula]", query)
             self.assertIn("TOP (?)", query)
             self.assertIn("[Fecha de inicio] >= ?", query)
             self.assertIn("[Fecha de inicio] < ?", query)
@@ -53,6 +55,17 @@ class OperationalRepositoryTests(unittest.TestCase):
     def test_no_trips(self):
         self.cursor.fetchall.return_value = []
         self.assertEqual(self.repository.load_operational_rows_between(self.start, self.end, matricula="MISSING"), [])
+
+    def test_same_plate_preserves_each_vehicle_code(self):
+        self.cursor.fetchall.return_value = [
+            ("T1", "INTERNAL-1", "TEST001", self.start, 2000, 0.4, 720),
+            ("T2", "INTERNAL-2", "TEST001", self.start, 2000, 0.4, 720),
+        ]
+        rows = self.repository.load_operational_rows_between(
+            self.start, self.end, matricula="TEST001"
+        )
+        self.assertEqual([row["matricula"] for row in rows], ["TEST001", "TEST001"])
+        self.assertEqual([row["Codigo Vehiculo"] for row in rows], ["INTERNAL-1", "INTERNAL-2"])
 
     def test_missing_consumption_preserved(self):
         self.cursor.fetchall.return_value = [
