@@ -17,7 +17,7 @@ class OperationalRepositoryTests(unittest.TestCase):
             "Distancia", "Consumo", "Duracion",
         )]
         self.cursor.fetchall.return_value = [
-            ("T1", "INTERNAL-1", "TEST001", datetime(2026, 9, 7, 23, 59, 59), 2000, 0.4, 720)
+            ("T1", "INTERNAL-1", "TEST001", datetime(2026, 9, 7, 23, 59, 59), 2000, 400, 720)
         ]
         self.connection = MagicMock()
         self.connection.cursor.return_value = self.cursor
@@ -58,8 +58,8 @@ class OperationalRepositoryTests(unittest.TestCase):
 
     def test_same_plate_preserves_each_vehicle_code(self):
         self.cursor.fetchall.return_value = [
-            ("T1", "INTERNAL-1", "TEST001", self.start, 2000, 0.4, 720),
-            ("T2", "INTERNAL-2", "TEST001", self.start, 2000, 0.4, 720),
+            ("T1", "INTERNAL-1", "TEST001", self.start, 2000, 400, 720),
+            ("T2", "INTERNAL-2", "TEST001", self.start, 2000, 400, 720),
         ]
         rows = self.repository.load_operational_rows_between(
             self.start, self.end, matricula="TEST001"

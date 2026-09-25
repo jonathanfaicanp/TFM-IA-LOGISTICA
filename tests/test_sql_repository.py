@@ -1,6 +1,9 @@
 import unittest
 from datetime import datetime
 from unittest.mock import MagicMock
+from decimal import Decimal
+
+from src.data_processing import normalize_trip
 
 from src.sql_repository import (
     DEFAULT_DRIVER,
@@ -13,6 +16,35 @@ from src.sql_repository import (
 
 
 class SqlHistoricalRepositoryTests(unittest.TestCase):
+    def test_all_sql_routes_preserve_ml_before_normalization(self):
+        for consumption in (Decimal("4156"), 0, None):
+            for route in ("history", "trip", "period", "operational", "vehicle"):
+                with self.subTest(consumption=consumption, route=route):
+                    repository, cursor, _ = self.make_trip_repository(
+                        ("SYNTHETIC", "V-1", datetime(2026, 9, 1), 5725, consumption, 600)
+                    )
+                    cursor.fetchall.return_value = [cursor.fetchone.return_value]
+                    start, end = datetime(2026, 9, 1), datetime(2026, 9, 2)
+                    if route == "history":
+                        row = repository.load_historical_rows()[0]
+                    elif route == "trip":
+                        row = repository.get_trip_by_id("SYNTHETIC")
+                    elif route == "period":
+                        row = repository.load_rows_between(start, end)[0]
+                    else:
+                        row = repository.load_operational_rows_between(
+                            start, end, matricula="TEST001" if route == "vehicle" else None
+                        )[0]
+                    self.assertEqual(row["Consumo"], None if consumption is None else float(consumption))
+                    normalized = normalize_trip(row)
+                    if consumption is None:
+                        self.assertIsNone(normalized.consumo_litros)
+                    else:
+                        self.assertAlmostEqual(normalized.consumo_litros, float(consumption) / 1000)
+                    if consumption:
+                        self.assertAlmostEqual(normalized.consumo_litros, 4.156)
+                        self.assertAlmostEqual(normalized.consumo_l_100km, 4.156 / 5.725 * 100)
+
     def make_trip_repository(self, row):
         columns = (
             "Codigo Viaje", "Codigo Vehiculo", "Fecha de inicio",
@@ -31,7 +63,7 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
 
     def test_get_trip_by_id_finds_and_normalizes_trip_with_parameterized_query(self):
         repository, cursor, connection = self.make_trip_repository(
-            ("14214132008", "V-1", datetime(2026, 8, 1, 10), 2000, 0.675, 600)
+            ("14214132008", "V-1", datetime(2026, 8, 1, 10), 2000, 675, 600)
         )
 
         trip = repository.get_trip_by_id("14214132008")
@@ -66,7 +98,7 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
                 600, 10538, 83.5, consumption, 91,
             )
 
-        sql_rows = [sql_row("T-1", 0.675), sql_row("T-2", 0), sql_row("T-3", None)]
+        sql_rows = [sql_row("T-1", 675), sql_row("T-2", 0), sql_row("T-3", None)]
         cursor = MagicMock()
         cursor.description = [(column,) for column in columns]
         cursor.fetchall.return_value = sql_rows
@@ -112,7 +144,7 @@ class SqlHistoricalRepositoryTests(unittest.TestCase):
         cursor = MagicMock()
         cursor.description = [(column,) for column in columns]
         cursor.fetchall.return_value = [
-            ("T-2026", "V-1", datetime(2026, 6, 1), 2000, 0.5, 600)
+            ("T-2026", "V-1", datetime(2026, 6, 1), 2000, 500, 600)
         ]
         connection = MagicMock()
         connection.cursor.return_value = cursor

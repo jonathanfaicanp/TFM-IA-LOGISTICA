@@ -43,8 +43,11 @@ CSV es el origen predeterminado para desarrollo local. SQL Server es la fuente
 operacional. Su repositorio es de solo lectura, usa consultas parametrizadas y
 columnas explícitas, y carga el histórico `[2024-01-01, 2026-01-01)`.
 
-La tabla SQL proporciona `Consumo` en litros y el adaptador lo convierte a
-mililitros para mantener el contrato interno. `Consumo=NULL` se conserva como
+En la fuente operacional verificada, SQL proporciona `Consumo` en mililitros;
+el adaptador conserva esa unidad para el contrato interno, sin multiplicar
+por 1000. La normalización analítica convierte después a litros.
+Esta unidad corresponde al entorno actual, no a una regla universal de SQL.
+`Consumo=NULL` se conserva como
 ausencia: consumo produce `NOT_EVALUABLE` con `MISSING_CONSUMPTION`, la señal
 temporal puede evaluarse y la cobertura consolidada puede ser `PARTIAL`. El
 valor ausente nunca se convierte en cero.

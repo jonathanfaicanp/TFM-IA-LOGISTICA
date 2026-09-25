@@ -93,9 +93,10 @@ ORDER BY [Fecha de inicio], [Codigo Viaje]
 
 def _to_analytical_row(column_names: list[str], sql_row: Any) -> dict[str, object]:
     analytical_row = dict(zip(column_names, sql_row))
-    consumption_liters = analytical_row["Consumo"]
+    # The verified operational source already stores consumption in millilitres.
+    consumption_ml = analytical_row["Consumo"]
     analytical_row["Consumo"] = (
-        None if consumption_liters is None else float(consumption_liters) * 1000
+        None if consumption_ml is None else float(consumption_ml)
     )
     return analytical_row
 
