@@ -108,10 +108,29 @@ Ejemplo sin viajes:
 {"start_date":"2026-09-01","end_date":"2026-09-07"}
 ```
 
-Eval?a todos los viajes del periodo y despu?s selecciona exclusivamente los
-resultados con `overall_status=REVIEW`. Agrupa por matr?cula y devuelve el
-n?mero e identificadores de viajes para revisar. Una matr?cula ausente se
-representa con `null`, sin atribuirla a un veh?culo conocido.
+Evalúa todos los viajes del periodo y después selecciona exclusivamente los
+resultados con `overall_status=REVIEW`. En el entorno real actual,
+`[Nombre Vehiculo]` es un campo mixto: contiene matrículas y nombres u otros
+identificadores operacionales; `[Matricula]` sigue sin estar poblada.
+
+Solo para este listado global, `normalize_operational_registration()` aplica
+`strip()` y `upper()` y exige coincidencia completa con `^[0-9]{4}[A-Z]{3}$`.
+Agrupa únicamente las matrículas reconocidas, usando su forma normalizada.
+No extrae matrículas de textos compuestos ni utiliza un LLM. Los nulos también
+se excluyen del listado. Es una regla de presentación operacional, no un
+criterio analítico ni una comprobación de que la matrícula exista legalmente.
+La consulta individual y las consultas SQL permanecen sin cambios.
+
+`total_trips`, `status_counts` y `coverage_counts` conservan todos los resultados
+analíticos, incluidos los excluidos del listado. Se añaden dos campos:
+
+- `excluded_review_trips`: viajes REVIEW excluidos por formato o valor nulo.
+- `excluded_review_identifiers`: identificadores distintos entre esos viajes,
+  contados después de `strip().upper()`; nulo cuenta como un identificador
+  ausente distinto de la cadena vacía. No se publican sus nombres.
+
+La suma de `review_count` en `vehicles` más `excluded_review_trips` coincide
+con `status_counts.REVIEW`. La agrupación no cambia códigos ni evaluaciones.
 
 Ejemplo ilustrativo con identificadores sint?ticos:
 
@@ -121,7 +140,9 @@ Ejemplo ilustrativo con identificadores sint?ticos:
   "total_trips": 3,
   "status_counts": {"NOT_EVALUABLE": 1, "NO_RELEVANT_DEVIATION": 1, "REVIEW": 1},
   "coverage_counts": {"COMPLETE": 2, "PARTIAL": 0, "NONE": 1},
-  "vehicles": [{"matricula": "TEST001", "review_count": 1, "trip_ids": ["R1"]}]
+  "vehicles": [{"matricula": "0001ABC", "review_count": 1, "trip_ids": ["R1"]}],
+  "excluded_review_trips": 0,
+  "excluded_review_identifiers": 0
 }
 ```
 

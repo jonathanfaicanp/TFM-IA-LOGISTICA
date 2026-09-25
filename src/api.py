@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Mapping
 from contextlib import asynccontextmanager
 from datetime import date, datetime, time, timedelta
@@ -21,6 +22,14 @@ DEFAULT_DATA_PATH = Path("data/datos_operativa.csv")
 DATA_PATH_ENVIRONMENT_VARIABLE = "TFM_DATA_PATH"
 DATA_SOURCE_ENVIRONMENT_VARIABLE = "TFM_DATA_SOURCE"
 MAX_PERIOD_TRIPS = 1000
+
+
+def normalize_operational_registration(value: str | None) -> str | None:
+    """Recognize only the requested plate format, independently of detection."""
+    if value is None:
+        return None
+    normalized = value.strip().upper()
+    return normalized if re.fullmatch(r"[0-9]{4}[A-Z]{3}", normalized) else None
 
 
 def build_analytical_service(environment: Mapping[str, str] | None = None) -> AnalyticalService:
@@ -148,6 +157,8 @@ class ReviewVehicleResponse(BaseModel):
 
 class ReviewPeriodResponse(PeriodResponse):
     vehicles: list[ReviewVehicleResponse]
+    excluded_review_trips: int = 0
+    excluded_review_identifiers: int = 0
 
 
 def evaluate_period(payload: PeriodRequest, request: Request, matricula: str | None = None):
@@ -241,14 +252,26 @@ def create_app(
     def review_vehicles_period(payload: PeriodRequest, request: Request) -> dict:
         rows, results, summary = evaluate_period(payload, request)
         groups = {}
+        excluded_trips = 0
+        excluded_identifiers = set()
         for row, result in zip(rows, results):
             if result["overall_status"] != DetectionStatus.REVIEW.value:
                 continue
-            plate = row.get("matricula")
+            identifier = row.get("matricula")
+            plate = normalize_operational_registration(identifier)
+            if plate is None:
+                excluded_trips += 1
+                excluded_identifiers.add(identifier.strip().upper() if identifier is not None else None)
+                continue
             group = groups.setdefault(plate, {"matricula": plate, "review_count": 0, "trip_ids": []})
             group["review_count"] += 1
             group["trip_ids"].append(result["trip_id"])
-        return {**summary, "vehicles": sorted(groups.values(), key=lambda group: group["matricula"] or "")}
+        return {
+            **summary,
+            "vehicles": sorted(groups.values(), key=lambda group: group["matricula"]),
+            "excluded_review_trips": excluded_trips,
+            "excluded_review_identifiers": len(excluded_identifiers),
+        }
 
     return application
 
