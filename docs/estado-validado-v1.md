@@ -43,9 +43,13 @@ ineficiencias reales ni se determinan causas.
 - Velocidad máxima e indicador de conducción no intervienen en los detectores.
 - 2024–2025 constituyen el histórico para baselines; 2026 es el periodo de
   evaluación. No se dispone de ground truth real de ineficiencia.
-- Las unidades se normalizan a kilómetros, litros y minutos. El adaptador SQL
-  convierte consumo de litros a mililitros para el contrato interno; la
-  normalización posterior obtiene litros, L/100 km y minutos/km.
+- Las unidades se normalizan a kilómetros, litros y minutos. Aclaración
+  posterior al tag v1.0-tfm: el adaptador de aquella versión multiplicaba
+  erróneamente el consumo SQL por 1000 al asumir litros. En la fuente
+  operacional verificada, `Consumo` ya está en mililitros y debe conservarse
+  para el contrato interno; la normalización posterior obtiene litros,
+  L/100 km y minutos/km. Esta corrección documental no modifica el tag ni
+  recalcula los resultados experimentales anteriores.
 - `Consumo=NULL`, `None`, una celda CSV vacía y cadenas de espacios representan
   ausencia, nunca cero. Consumo devuelve `NOT_EVALUABLE` con
   `MISSING_CONSUMPTION`; temporal puede seguir evaluándose.

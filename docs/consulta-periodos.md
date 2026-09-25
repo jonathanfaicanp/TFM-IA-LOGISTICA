@@ -20,6 +20,15 @@ El campo lógico `matricula` se usa solo para búsqueda y presentación/agrupaci
 `Codigo Vehiculo` sigue siendo la identidad del motor y sus referencias.
 Se reutiliza el adaptador de unidades SQL existente.
 
+En la fuente operacional verificada, `[Consumo]` ya está en mililitros.
+Las cuatro rutas del repositorio comparten el adaptador `_to_analytical_row`,
+que conserva esa escala y los valores nulos, sin multiplicar por 1000.
+Por ejemplo, SQL `Consumo=4156` llega al contrato interno como 4156 ml y la
+normalización del motor obtiene 4.156 litros. Esta corrección sustituye la
+suposición anterior de litros y es específica del entorno verificado.
+Tras desplegarla se debe reiniciar la API para reconstruir las referencias
+en memoria con el histórico adaptado correctamente.
+
 Según la verificación del entorno operacional comunicada por el responsable
 de los datos, la columna física `[Matricula]` existe pero no está poblada.
 En esta fuente actual la matrícula operativa se almacena en `[Nombre Vehiculo]`,

@@ -42,7 +42,11 @@ decisiones cerradas, las hipótesis sustituidas y los pendientes reales.
 
 - CSV permanece como fuente de desarrollo y SQL Server es la fuente
   operacional de solo lectura.
-- El consumo SQL en litros se convierte a mililitros en el adaptador.
+- Corrección posterior a v1.0-tfm: la verificación de la fuente operacional
+  comunicada por el responsable de los datos confirma `Consumo` en mililitros.
+  Se elimina la multiplicación por 1000 del adaptador SQL; se conserva la
+  conversión posterior a litros del motor. La suposición previa de litros
+  era incorrecta para este entorno. No se recalculan aquí resultados previos.
 - FastAPI expone `GET /health`, `POST /evaluate` y `POST /evaluate-trip`; este
   último recupera el viaje por `trip_id` en modo SQL.
 - La integración SQL Server → FastAPI y el workflow n8n operacional se han
