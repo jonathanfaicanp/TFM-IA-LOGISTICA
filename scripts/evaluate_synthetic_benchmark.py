@@ -2,6 +2,8 @@
 
 Historical scopes come only from 2024-2025.  2026 controls and perturbed
 versions are calculated in memory; output files contain aggregate metrics only.
+
+The temporal split is configurable; defaults preserve the original experiment.
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from analyze_b30_mad import build_scopes, robust_z, select_b30_scope
+from experimental_split import validate_split
 from compare_baselines import RANGES, distance_range, number, parse_number, parse_start_date, write_csv
 from evaluate_detector_candidates import relative_deviation, rule_and, rule_or
 from src.baseline import MINIMUM_VEHICLE_OBSERVATIONS
@@ -74,19 +77,20 @@ def rates(positives: int, true_positives: int, negatives: int, false_positives: 
     return {"cases_perturbed_evaluable": positives, "detected": true_positives, "recall_pct": number(recall), "false_negatives": positives - true_positives, "false_negative_rate_pct": number(100 - recall) if positives else 0.0, "control_cases": negatives, "false_positives": false_positives, "false_positive_rate_pct": number(fpr), "specificity_pct": number(100 - fpr) if negatives else 0.0}
 
 
-def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
+def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    validate_split(history_years, evaluation_year)
     history, evaluation = [], []
     with input_path.open("r", encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file, delimiter=";"):
             date = parse_start_date(row["Fecha de inicio"])
-            if date.year not in (2024, 2025, 2026):
+            if date.year not in (*history_years, evaluation_year):
                 continue
             distance_km = parse_number(row["Distancia"]) / 1000
             consumption_liters = parse_number(row["Consumo"]) / 1000
             if distance_km <= 0 or consumption_liters <= 0:
                 continue
             record = {"vehicle": row["Codigo Vehiculo"], "range": distance_range(distance_km), "distance_km": distance_km, "consumption_liters": consumption_liters, "l_100km": consumption_liters / distance_km * 100}
-            (evaluation if date.year == 2026 else history).append(record)
+            (evaluation if date.year == evaluation_year else history).append(record)
     return history, evaluation
 
 
@@ -127,8 +131,8 @@ def evaluate_group(records: list[dict], perturbation: float, rule: tuple) -> dic
     return rates(len(records), sum(perturbed), len(records), sum(controls))
 
 
-def run(input_path: Path, output_dir: Path) -> tuple[list[dict], list[dict]]:
-    history, evaluation = load_records(input_path)
+def run(input_path: Path, output_dir: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    history, evaluation = load_records(input_path, history_years, evaluation_year)
     prepared = prepare_evaluation(history, evaluation)
     summary_rows, range_rows = [], []
     for perturbation in PERTURBATIONS:
@@ -196,12 +200,14 @@ def main() -> None:
     parser.add_argument("--input", type=Path, default=Path("data/datos_operativa.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("data"))
     parser.add_argument("--comparison-only", action="store_true", help="Build only the rule comparison from the existing summary CSV")
+    parser.add_argument("--history-years", type=int, nargs="+", default=[2024, 2025])
+    parser.add_argument("--evaluation-year", type=int, default=2026)
     args = parser.parse_args()
     if args.comparison_only:
         rows = build_rule_comparison(args.output_dir / "synthetic_benchmark_summary.csv", args.output_dir / "synthetic_benchmark_rule_comparison.csv")
         print(f"Reglas comparadas: {len(rows)}")
         return
-    summaries, _ = run(args.input, args.output_dir)
+    summaries, _ = run(args.input, args.output_dir, tuple(args.history_years), args.evaluation_year)
     print(f"Filas agregadas de resumen: {len(summaries)}")
 
 

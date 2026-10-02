@@ -1,0 +1,4 @@
+strategy,context_minimum_records,evaluation_records_total,evaluable_records,records_without_baseline,coverage_pct,evaluated_vehicles,vehicles_with_fallback,contextual_evaluations,fallback_evaluations,contextual_evaluations_pct,fallback_evaluations_pct,desviacion_median,desviacion_p75,desviacion_p90,desviacion_p95,desviacion_p99,over_25pct,over_50pct,over_100pct,over_200pct
+A,,24597,23871,726,97.04842054,23,0,0,0,0.0,0.0,0.00587916,0.28584914,1.02338623,2.49142942,13.27877472,6450,4079,2430,1438
+B30,30,24597,23871,726,97.04842054,23,20,22166,1705,92.85744208,7.14255792,0.00412149,0.16865124,0.44981819,0.80765106,3.66106735,4356,2116,957,471
+B50,50,24597,23871,726,97.04842054,23,22,20386,3485,85.4006954,14.5993046,0.00345449,0.17915155,0.49268293,0.96061073,6.28995622,4614,2360,1156,646

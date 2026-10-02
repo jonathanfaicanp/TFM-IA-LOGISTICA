@@ -1,0 +1,46 @@
+scenario,minimum_distance_km_strict,rango_distancia_km,registros_despues_del_filtro,registros_evaluables_b30
+sin_filtro,,<= 1,3803,3697
+sin_filtro,,> 1 y <= 2,1437,1425
+sin_filtro,,> 2 y <= 5,2909,2850
+sin_filtro,,> 5 y <= 10,2868,2781
+sin_filtro,,> 10 y <= 20,3014,2966
+sin_filtro,,> 20 y <= 50,5765,5596
+sin_filtro,,> 50 y <= 100,2363,2175
+sin_filtro,,> 100 y <= 300,2165,2109
+sin_filtro,,> 300,273,272
+distancia_gt_0_5km,0.5,<= 1,1430,1418
+distancia_gt_0_5km,0.5,> 1 y <= 2,1437,1425
+distancia_gt_0_5km,0.5,> 2 y <= 5,2909,2850
+distancia_gt_0_5km,0.5,> 5 y <= 10,2868,2781
+distancia_gt_0_5km,0.5,> 10 y <= 20,3014,2966
+distancia_gt_0_5km,0.5,> 20 y <= 50,5765,5596
+distancia_gt_0_5km,0.5,> 50 y <= 100,2363,2175
+distancia_gt_0_5km,0.5,> 100 y <= 300,2165,2109
+distancia_gt_0_5km,0.5,> 300,273,272
+distancia_gt_1km,1.0,<= 1,0,0
+distancia_gt_1km,1.0,> 1 y <= 2,1437,1425
+distancia_gt_1km,1.0,> 2 y <= 5,2909,2850
+distancia_gt_1km,1.0,> 5 y <= 10,2868,2781
+distancia_gt_1km,1.0,> 10 y <= 20,3014,2966
+distancia_gt_1km,1.0,> 20 y <= 50,5765,5596
+distancia_gt_1km,1.0,> 50 y <= 100,2363,2175
+distancia_gt_1km,1.0,> 100 y <= 300,2165,2109
+distancia_gt_1km,1.0,> 300,273,272
+distancia_gt_2km,2.0,<= 1,0,0
+distancia_gt_2km,2.0,> 1 y <= 2,0,0
+distancia_gt_2km,2.0,> 2 y <= 5,2909,2850
+distancia_gt_2km,2.0,> 5 y <= 10,2868,2781
+distancia_gt_2km,2.0,> 10 y <= 20,3014,2966
+distancia_gt_2km,2.0,> 20 y <= 50,5765,5596
+distancia_gt_2km,2.0,> 50 y <= 100,2363,2175
+distancia_gt_2km,2.0,> 100 y <= 300,2165,2109
+distancia_gt_2km,2.0,> 300,273,272
+distancia_gt_5km,5.0,<= 1,0,0
+distancia_gt_5km,5.0,> 1 y <= 2,0,0
+distancia_gt_5km,5.0,> 2 y <= 5,0,0
+distancia_gt_5km,5.0,> 5 y <= 10,2868,2781
+distancia_gt_5km,5.0,> 10 y <= 20,3014,2966
+distancia_gt_5km,5.0,> 20 y <= 50,5765,5596
+distancia_gt_5km,5.0,> 50 y <= 100,2363,2175
+distancia_gt_5km,5.0,> 100 y <= 300,2165,2109
+distancia_gt_5km,5.0,> 300,273,272

@@ -1,0 +1,2061 @@
+{
+  "construction_years": [
+    2024
+  ],
+  "evaluation_year": 2025,
+  "input_sha256": "5acee0912132de006bf31c8657f6703b7ff568cc7b5aa94e6b4c81a25f6f8fdf",
+  "history_valid_consumption": 14886,
+  "history_vehicles": 23,
+  "history_eligible_vehicles_ge_100": 22,
+  "history_eligible_records_ge_100": 14837,
+  "history_vehicle_count_distribution": {
+    "median": 492,
+    "p75": 870.5,
+    "p90": 1295.0,
+    "p95": 1398.8,
+    "p99": 1824.3,
+    "max": 1942
+  },
+  "history_contexts": 186,
+  "history_contexts_ge_30": 119,
+  "history_contexts_ge_50": 100,
+  "baseline_original": {
+    "construction_year": 2024,
+    "evaluation_year": 2025,
+    "construction_valid_records": 14886,
+    "construction_vehicles_with_vehicle_baseline": 23,
+    "construction_vehicle_range_groups": 192,
+    "evaluation_valid_records": 24597,
+    "strategies": [
+      {
+        "strategy": "A",
+        "context_minimum_records": null,
+        "evaluation_records_total": 24597,
+        "evaluable_records": 23871,
+        "records_without_baseline": 726,
+        "coverage_pct": 97.04842054,
+        "evaluated_vehicles": 23,
+        "vehicles_with_fallback": 0,
+        "contextual_evaluations": 0,
+        "fallback_evaluations": 0,
+        "contextual_evaluations_pct": 0.0,
+        "fallback_evaluations_pct": 0.0,
+        "relative_deviation": {
+          "median": 0.00587916,
+          "p75": 0.28584914,
+          "p90": 1.02338623,
+          "p95": 2.49142942,
+          "p99": 13.27877472
+        },
+        "positive_deviation_counts": {
+          "over_25pct": 6450,
+          "over_50pct": 4079,
+          "over_100pct": 2430,
+          "over_200pct": 1438
+        }
+      },
+      {
+        "strategy": "B30",
+        "context_minimum_records": 30,
+        "evaluation_records_total": 24597,
+        "evaluable_records": 23871,
+        "records_without_baseline": 726,
+        "coverage_pct": 97.04842054,
+        "evaluated_vehicles": 23,
+        "vehicles_with_fallback": 20,
+        "contextual_evaluations": 22166,
+        "fallback_evaluations": 1705,
+        "contextual_evaluations_pct": 92.85744208,
+        "fallback_evaluations_pct": 7.14255792,
+        "relative_deviation": {
+          "median": 0.00412149,
+          "p75": 0.16865124,
+          "p90": 0.44981819,
+          "p95": 0.80765106,
+          "p99": 3.66106735
+        },
+        "positive_deviation_counts": {
+          "over_25pct": 4356,
+          "over_50pct": 2116,
+          "over_100pct": 957,
+          "over_200pct": 471
+        }
+      },
+      {
+        "strategy": "B50",
+        "context_minimum_records": 50,
+        "evaluation_records_total": 24597,
+        "evaluable_records": 23871,
+        "records_without_baseline": 726,
+        "coverage_pct": 97.04842054,
+        "evaluated_vehicles": 23,
+        "vehicles_with_fallback": 22,
+        "contextual_evaluations": 20386,
+        "fallback_evaluations": 3485,
+        "contextual_evaluations_pct": 85.4006954,
+        "fallback_evaluations_pct": 14.5993046,
+        "relative_deviation": {
+          "median": 0.00345449,
+          "p75": 0.17915155,
+          "p90": 0.49268293,
+          "p95": 0.96061073,
+          "p99": 6.28995622
+        },
+        "positive_deviation_counts": {
+          "over_25pct": 4614,
+          "over_50pct": 2360,
+          "over_100pct": 1156,
+          "over_200pct": 646
+        }
+      }
+    ]
+  },
+  "baseline_eligible": [
+    {
+      "strategy": "A",
+      "context_minimum_records": null,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23849,
+      "records_without_baseline": 748,
+      "coverage_pct": 96.95897874,
+      "evaluated_vehicles": 22,
+      "vehicles_with_fallback": 0,
+      "contextual_evaluations": 0,
+      "fallback_evaluations": 0,
+      "contextual_evaluations_pct": 0.0,
+      "fallback_evaluations_pct": 0.0,
+      "relative_deviation": {
+        "median": 0.00583446,
+        "p75": 0.28568124,
+        "p90": 1.02218189,
+        "p95": 2.47908261,
+        "p99": 13.2825434
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 6441,
+        "over_50pct": 4073,
+        "over_100pct": 2426,
+        "over_200pct": 1434
+      }
+    },
+    {
+      "strategy": "B30",
+      "context_minimum_records": 30,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23849,
+      "records_without_baseline": 748,
+      "coverage_pct": 96.95897874,
+      "evaluated_vehicles": 22,
+      "vehicles_with_fallback": 19,
+      "contextual_evaluations": 22166,
+      "fallback_evaluations": 1683,
+      "contextual_evaluations_pct": 92.94310034,
+      "fallback_evaluations_pct": 7.05689966,
+      "relative_deviation": {
+        "median": 0.00408597,
+        "p75": 0.16854383,
+        "p90": 0.44903203,
+        "p95": 0.80463494,
+        "p99": 3.62842695
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 4347,
+        "over_50pct": 2110,
+        "over_100pct": 953,
+        "over_200pct": 467
+      }
+    },
+    {
+      "strategy": "B50",
+      "context_minimum_records": 50,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23849,
+      "records_without_baseline": 748,
+      "coverage_pct": 96.95897874,
+      "evaluated_vehicles": 22,
+      "vehicles_with_fallback": 21,
+      "contextual_evaluations": 20386,
+      "fallback_evaluations": 3463,
+      "contextual_evaluations_pct": 85.47947503,
+      "fallback_evaluations_pct": 14.52052497,
+      "relative_deviation": {
+        "median": 0.00340547,
+        "p75": 0.17899091,
+        "p90": 0.49211691,
+        "p95": 0.95788452,
+        "p99": 6.21531427
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 4605,
+        "over_50pct": 2354,
+        "over_100pct": 1152,
+        "over_200pct": 642
+      }
+    }
+  ],
+  "candidates_eligible": [
+    {
+      "scenario": "D1_relative_gt_25pct",
+      "family": "D1",
+      "relative_threshold": 0.25,
+      "robust_z_threshold": null,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 4347,
+      "marked_pct": 18.22717934,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 35.68914162,
+      "pct_marked_distance_gt_5km": 13.39544253,
+      "pct_marked_distance_gt_20km": 12.80055183
+    },
+    {
+      "scenario": "D1_relative_gt_50pct",
+      "family": "D1",
+      "relative_threshold": 0.5,
+      "robust_z_threshold": null,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 2110,
+      "marked_pct": 8.84733112,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 28.13430815,
+      "pct_marked_distance_gt_5km": 4.04758907,
+      "pct_marked_distance_gt_20km": 3.9613717
+    },
+    {
+      "scenario": "D1_relative_gt_100pct",
+      "family": "D1",
+      "relative_threshold": 1,
+      "robust_z_threshold": null,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 953,
+      "marked_pct": 3.99597467,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 19.55050095,
+      "pct_marked_distance_gt_5km": 0.45322926,
+      "pct_marked_distance_gt_20km": 0.30547891
+    },
+    {
+      "scenario": "D1_relative_gt_200pct",
+      "family": "D1",
+      "relative_threshold": 2,
+      "robust_z_threshold": null,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 467,
+      "marked_pct": 1.95815338,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 5,
+      "pct_marked_distance_lte_1km": 11.39994584,
+      "pct_marked_distance_gt_5km": 0.04406396,
+      "pct_marked_distance_gt_20km": 0.00985416
+    },
+    {
+      "scenario": "D1_relative_gt_500pct",
+      "family": "D1",
+      "relative_threshold": 5,
+      "robust_z_threshold": null,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 175,
+      "marked_pct": 0.73378339,
+      "vehicles_affected": 20,
+      "vehicles_for_at_least_50pct_of_marked": 4,
+      "pct_marked_distance_lte_1km": 4.65746006,
+      "pct_marked_distance_gt_5km": 0.0,
+      "pct_marked_distance_gt_20km": 0.0
+    },
+    {
+      "scenario": "D2_robust_z_gt_2",
+      "family": "D2",
+      "relative_threshold": null,
+      "robust_z_threshold": 2.0,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 2628,
+      "marked_pct": 11.01932995,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 21.17519632,
+      "pct_marked_distance_gt_5km": 8.23995971,
+      "pct_marked_distance_gt_20km": 8.73078439
+    },
+    {
+      "scenario": "D2_robust_z_gt_3",
+      "family": "D2",
+      "relative_threshold": null,
+      "robust_z_threshold": 3.0,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 1418,
+      "marked_pct": 5.94574196,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 15.86785811,
+      "pct_marked_distance_gt_5km": 3.28591212,
+      "pct_marked_distance_gt_20km": 3.49822625
+    },
+    {
+      "scenario": "D2_robust_z_gt_4",
+      "family": "D2",
+      "relative_threshold": null,
+      "robust_z_threshold": 4.0,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 912,
+      "marked_pct": 3.82405971,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 13.07879773,
+      "pct_marked_distance_gt_5km": 1.44781569,
+      "pct_marked_distance_gt_20km": 1.52739456
+    },
+    {
+      "scenario": "D2_robust_z_gt_5",
+      "family": "D2",
+      "relative_threshold": null,
+      "robust_z_threshold": 5.0,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 627,
+      "marked_pct": 2.62904105,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 10.3168156,
+      "pct_marked_distance_gt_5km": 0.67354904,
+      "pct_marked_distance_gt_20km": 0.62081198
+    },
+    {
+      "scenario": "D2_robust_z_gt_10",
+      "family": "D2",
+      "relative_threshold": null,
+      "robust_z_threshold": 10.0,
+      "operation": null,
+      "records_evaluable": 23849,
+      "records_marked": 229,
+      "marked_pct": 0.96020798,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 4,
+      "pct_marked_distance_lte_1km": 5.17194693,
+      "pct_marked_distance_gt_5km": 0.05665366,
+      "pct_marked_distance_gt_20km": 0.04927079
+    },
+    {
+      "scenario": "D3_AND_relative_gt_50pct_z_gt_2",
+      "family": "D3",
+      "relative_threshold": 0.5,
+      "robust_z_threshold": 2.0,
+      "operation": "AND",
+      "records_evaluable": 23849,
+      "records_marked": 1718,
+      "marked_pct": 7.20365634,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 5,
+      "pct_marked_distance_lte_1km": 21.14811806,
+      "pct_marked_distance_gt_5km": 3.39921944,
+      "pct_marked_distance_gt_20km": 3.18289318
+    },
+    {
+      "scenario": "D3_AND_relative_gt_100pct_z_gt_3",
+      "family": "D3",
+      "relative_threshold": 1,
+      "robust_z_threshold": 3.0,
+      "operation": "AND",
+      "records_evaluable": 23849,
+      "records_marked": 800,
+      "marked_pct": 3.35443834,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 15.67831032,
+      "pct_marked_distance_gt_5km": 0.4091653,
+      "pct_marked_distance_gt_20km": 0.26606228
+    },
+    {
+      "scenario": "D3_AND_relative_gt_200pct_z_gt_5",
+      "family": "D3",
+      "relative_threshold": 2,
+      "robust_z_threshold": 5.0,
+      "operation": "AND",
+      "records_evaluable": 23849,
+      "records_marked": 386,
+      "marked_pct": 1.6185165,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 5,
+      "pct_marked_distance_lte_1km": 9.26076361,
+      "pct_marked_distance_gt_5km": 0.04406396,
+      "pct_marked_distance_gt_20km": 0.00985416
+    },
+    {
+      "scenario": "D3_OR_relative_gt_50pct_z_gt_2",
+      "family": "D3",
+      "relative_threshold": 0.5,
+      "robust_z_threshold": 2.0,
+      "operation": "OR",
+      "records_evaluable": 23849,
+      "records_marked": 3020,
+      "marked_pct": 12.66300474,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 28.16138641,
+      "pct_marked_distance_gt_5km": 8.88832935,
+      "pct_marked_distance_gt_20km": 9.50926291
+    },
+    {
+      "scenario": "D3_OR_relative_gt_100pct_z_gt_3",
+      "family": "D3",
+      "relative_threshold": 1,
+      "robust_z_threshold": 3.0,
+      "operation": "OR",
+      "records_evaluable": 23849,
+      "records_marked": 1571,
+      "marked_pct": 6.58727829,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 19.74004874,
+      "pct_marked_distance_gt_5km": 3.32997608,
+      "pct_marked_distance_gt_20km": 3.53764289
+    },
+    {
+      "scenario": "D3_OR_relative_gt_200pct_z_gt_5",
+      "family": "D3",
+      "relative_threshold": 2,
+      "robust_z_threshold": 5.0,
+      "operation": "OR",
+      "records_evaluable": 23849,
+      "records_marked": 708,
+      "marked_pct": 2.96867793,
+      "vehicles_affected": 22,
+      "vehicles_for_at_least_50pct_of_marked": 6,
+      "pct_marked_distance_lte_1km": 12.45599783,
+      "pct_marked_distance_gt_5km": 0.67354904,
+      "pct_marked_distance_gt_20km": 0.62081198
+    }
+  ],
+  "distance_consumption_eligible": [
+    {
+      "scenario": "sin_filtro",
+      "minimum_distance_km_strict": null,
+      "valid_records_initial": 24597,
+      "records_after_distance_filter": 24597,
+      "records_discarded_by_filter": 0,
+      "records_discarded_pct": 0.0,
+      "records_evaluable_b30": 23849,
+      "vehicles_evaluated": 22,
+      "l100_median": 0.01350877,
+      "l100_p95": 0.07554916,
+      "l100_p99": 0.37304242,
+      "l100_max": 22.46,
+      "deviation_median": 0.00408597,
+      "deviation_p75": 0.16854383,
+      "deviation_p90": 0.44903203,
+      "deviation_p95": 0.80463494,
+      "deviation_p99": 3.62842695,
+      "over_50pct": 2110,
+      "over_50pct_pct": 8.84733112,
+      "over_100pct": 953,
+      "over_100pct_pct": 3.99597467,
+      "over_200pct": 467,
+      "over_200pct_pct": 1.95815338,
+      "over_500pct": 175,
+      "over_500pct_pct": 0.73378339,
+      "coverage_pct_of_remaining": 96.95897874
+    },
+    {
+      "scenario": "distancia_gt_0_5km",
+      "minimum_distance_km_strict": 0.5,
+      "valid_records_initial": 24597,
+      "records_after_distance_filter": 22224,
+      "records_discarded_by_filter": 2373,
+      "records_discarded_pct": 9.64751799,
+      "records_evaluable_b30": 21572,
+      "vehicles_evaluated": 22,
+      "l100_median": 0.01264199,
+      "l100_p95": 0.05112464,
+      "l100_p99": 0.10986133,
+      "l100_max": 0.77803922,
+      "deviation_median": -0.00182866,
+      "deviation_p75": 0.14449978,
+      "deviation_p90": 0.34249296,
+      "deviation_p95": 0.52660953,
+      "deviation_p99": 1.11438573,
+      "over_50pct": 1193,
+      "over_50pct_pct": 5.53031708,
+      "over_100pct": 281,
+      "over_100pct_pct": 1.3026145,
+      "over_200pct": 63,
+      "over_200pct_pct": 0.29204524,
+      "over_500pct": 8,
+      "over_500pct_pct": 0.03708511,
+      "coverage_pct_of_remaining": 97.0662347
+    },
+    {
+      "scenario": "distancia_gt_1km",
+      "minimum_distance_km_strict": 1.0,
+      "valid_records_initial": 24597,
+      "records_after_distance_filter": 20794,
+      "records_discarded_by_filter": 3803,
+      "records_discarded_pct": 15.46123511,
+      "records_evaluable_b30": 20156,
+      "vehicles_evaluated": 22,
+      "l100_median": 0.01232053,
+      "l100_p95": 0.04550177,
+      "l100_p99": 0.07261223,
+      "l100_max": 0.31688109,
+      "deviation_median": 0.00506669,
+      "deviation_p75": 0.14830115,
+      "deviation_p90": 0.3407952,
+      "deviation_p95": 0.51430736,
+      "deviation_p99": 1.04677208,
+      "over_50pct": 1071,
+      "over_50pct_pct": 5.31355428,
+      "over_100pct": 231,
+      "over_100pct_pct": 1.14606073,
+      "over_200pct": 46,
+      "over_200pct_pct": 0.22821988,
+      "over_500pct": 3,
+      "over_500pct_pct": 0.01488391,
+      "coverage_pct_of_remaining": 96.93180725
+    },
+    {
+      "scenario": "distancia_gt_2km",
+      "minimum_distance_km_strict": 2.0,
+      "valid_records_initial": 24597,
+      "records_after_distance_filter": 19357,
+      "records_discarded_by_filter": 5240,
+      "records_discarded_pct": 21.30341099,
+      "records_evaluable_b30": 18732,
+      "vehicles_evaluated": 22,
+      "l100_median": 0.01212571,
+      "l100_p95": 0.04490938,
+      "l100_p99": 0.06876003,
+      "l100_max": 0.31688109,
+      "deviation_median": 0.00468792,
+      "deviation_p75": 0.1435278,
+      "deviation_p90": 0.32774801,
+      "deviation_p95": 0.49194729,
+      "deviation_p99": 0.94149582,
+      "over_50pct": 909,
+      "over_50pct_pct": 4.85265855,
+      "over_100pct": 163,
+      "over_100pct_pct": 0.8701687,
+      "over_200pct": 23,
+      "over_200pct_pct": 0.12278454,
+      "over_500pct": 3,
+      "over_500pct_pct": 0.01601537,
+      "coverage_pct_of_remaining": 96.77119388
+    },
+    {
+      "scenario": "distancia_gt_5km",
+      "minimum_distance_km_strict": 5.0,
+      "valid_records_initial": 24597,
+      "records_after_distance_filter": 16448,
+      "records_discarded_by_filter": 8149,
+      "records_discarded_pct": 33.13005651,
+      "records_evaluable_b30": 15886,
+      "vehicles_evaluated": 22,
+      "l100_median": 0.0122607,
+      "l100_p95": 0.04414669,
+      "l100_p99": 0.05964543,
+      "l100_max": 0.14509259,
+      "deviation_median": 0.00261533,
+      "deviation_p75": 0.13483378,
+      "deviation_p90": 0.30789897,
+      "deviation_p95": 0.4529463,
+      "deviation_p99": 0.80810713,
+      "over_50pct": 643,
+      "over_50pct_pct": 4.04758907,
+      "over_100pct": 72,
+      "over_100pct_pct": 0.45322926,
+      "over_200pct": 7,
+      "over_200pct_pct": 0.04406396,
+      "over_500pct": 0,
+      "over_500pct_pct": 0.0,
+      "coverage_pct_of_remaining": 96.58317121
+    }
+  ],
+  "mad_original": {
+    "construction_years": [
+      2024
+    ],
+    "evaluation_year": 2025,
+    "history_valid_records": 14886,
+    "evaluation_valid_records": 24597,
+    "records_evaluable": 23871,
+    "records_without_baseline": 726,
+    "records_mad_zero": 0,
+    "records_with_robust_z": 23871,
+    "relative_deviation": {
+      "median": 0.00412149,
+      "p75": 0.16865124,
+      "p90": 0.44981819,
+      "p95": 0.80765106,
+      "p99": 3.66106735
+    },
+    "robust_z": {
+      "median": 0.02375033,
+      "p75": 0.94434717,
+      "p90": 2.14714427,
+      "p95": 3.36060779,
+      "p99": 9.75034455,
+      "max": 2099.7407348,
+      "negative_count": 11740,
+      "zero_count": 2,
+      "positive_count": 12129,
+      "over_1": 5721,
+      "over_1_pct_of_scored": 23.96631896,
+      "over_2": 2636,
+      "over_2_pct_of_scored": 11.04268778,
+      "over_3": 1424,
+      "over_3_pct_of_scored": 5.96539734,
+      "over_4": 916,
+      "over_4_pct_of_scored": 3.83729211,
+      "over_5": 631,
+      "over_5_pct_of_scored": 2.64337481
+    }
+  },
+  "temporal_full": {
+    "total_2025": 37295,
+    "valid_temporal_2025": 37090,
+    "evaluable_2025": 35756,
+    "coverage_pct_of_valid_temporal": 96.40334322,
+    "baseline_type": {
+      "contextual": 33269,
+      "vehicle_fallback": 2487
+    },
+    "not_evaluable": {
+      "total": 1539,
+      "reasons": {
+        "NON_POSITIVE_DISTANCE": 126,
+        "NON_POSITIVE_DURATION": 79,
+        "NO_HISTORICAL_BASELINE": 1334
+      }
+    },
+    "mad_zero": 0,
+    "groups": {
+      "all_evaluable": {
+        "n": 35756,
+        "relative_deviation": {
+          "median": 0.00023585,
+          "p75": 0.37536618,
+          "p90": 1.07763593,
+          "p95": 1.93267234,
+          "p99": 6.59757784,
+          "max": 2931.97109307
+        },
+        "robust_z": {
+          "median": 0.00058033,
+          "p75": 0.9954426,
+          "p90": 2.61306014,
+          "p95": 4.21981624,
+          "p99": 13.0071984,
+          "max": 6062.84349809
+        },
+        "candidate_rule_percentages": {
+          "relative_gt_25pct": 31.13603311,
+          "relative_gt_50pct": 20.56997427,
+          "relative_gt_100pct": 10.92404072,
+          "relative_gt_200pct": 4.79080434,
+          "robust_z_gt_2": 13.7767088,
+          "robust_z_gt_3": 8.30350151,
+          "robust_z_gt_4": 5.45642689,
+          "robust_z_gt_5": 3.87906925,
+          "relative_gt_50pct_AND_z_gt_2": 13.34601186,
+          "relative_gt_100pct_AND_z_gt_3": 7.33023828,
+          "relative_gt_200pct_AND_z_gt_5": 3.37565723
+        }
+      },
+      "distance_lte_1km": {
+        "n": 6375,
+        "relative_deviation": {
+          "median": -0.01785714,
+          "p75": 0.79232721,
+          "p90": 2.98852149,
+          "p95": 6.31988021,
+          "p99": 32.32417569,
+          "max": 2931.97109307
+        },
+        "robust_z": {
+          "median": -0.03144479,
+          "p75": 1.31809722,
+          "p90": 4.66362211,
+          "p95": 11.07824978,
+          "p99": 61.16962729,
+          "max": 6062.84349809
+        },
+        "candidate_rule_percentages": {
+          "relative_gt_25pct": 37.42745098,
+          "relative_gt_50pct": 30.50980392,
+          "relative_gt_100pct": 22.02352941,
+          "relative_gt_200pct": 13.89803922,
+          "robust_z_gt_2": 19.67058824,
+          "robust_z_gt_3": 14.58823529,
+          "robust_z_gt_4": 11.67058824,
+          "robust_z_gt_5": 9.36470588,
+          "relative_gt_50pct_AND_z_gt_2": 19.67058824,
+          "relative_gt_100pct_AND_z_gt_3": 14.57254902,
+          "relative_gt_200pct_AND_z_gt_5": 9.34901961
+        }
+      },
+      "distance_gt_1km": {
+        "n": 29381,
+        "relative_deviation": {
+          "median": 0.00263439,
+          "p75": 0.33877379,
+          "p90": 0.88497477,
+          "p95": 1.41835087,
+          "p99": 3.35875667,
+          "max": 24.73479599
+        },
+        "robust_z": {
+          "median": 0.00757525,
+          "p75": 0.95225257,
+          "p90": 2.37017518,
+          "p95": 3.6078137,
+          "p99": 7.84698937,
+          "max": 68.46745013
+        },
+        "candidate_rule_percentages": {
+          "relative_gt_25pct": 29.7709404,
+          "relative_gt_50pct": 18.41326027,
+          "relative_gt_100pct": 8.51570743,
+          "relative_gt_200pct": 2.81474422,
+          "robust_z_gt_2": 12.49787277,
+          "robust_z_gt_3": 6.93985909,
+          "robust_z_gt_4": 4.10809707,
+          "robust_z_gt_5": 2.6888125,
+          "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+          "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+          "relative_gt_200pct_AND_z_gt_5": 2.07957524
+        }
+      }
+    }
+  },
+  "temporal_distance_scenarios": [
+    {
+      "history_mode": "fixed_history",
+      "scenario": "sin_filtro",
+      "minimum_distance_km_strict": null,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 37090,
+      "records_discarded_by_filter": 0,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 37090,
+      "valid_temporal_2025": 37090,
+      "evaluable_2025": 35756,
+      "coverage_pct_of_valid_temporal": 96.40334322,
+      "baseline_type": {
+        "contextual": 33269,
+        "vehicle_fallback": 2487
+      },
+      "not_evaluable": {
+        "total": 1334,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1334
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 35756,
+          "relative_deviation": {
+            "median": 0.00023585,
+            "p75": 0.37536618,
+            "p90": 1.07763593,
+            "p95": 1.93267234,
+            "p99": 6.59757784,
+            "max": 2931.97109307
+          },
+          "robust_z": {
+            "median": 0.00058033,
+            "p75": 0.9954426,
+            "p90": 2.61306014,
+            "p95": 4.21981624,
+            "p99": 13.0071984,
+            "max": 6062.84349809
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 31.13603311,
+            "relative_gt_50pct": 20.56997427,
+            "relative_gt_100pct": 10.92404072,
+            "relative_gt_200pct": 4.79080434,
+            "robust_z_gt_2": 13.7767088,
+            "robust_z_gt_3": 8.30350151,
+            "robust_z_gt_4": 5.45642689,
+            "robust_z_gt_5": 3.87906925,
+            "relative_gt_50pct_AND_z_gt_2": 13.34601186,
+            "relative_gt_100pct_AND_z_gt_3": 7.33023828,
+            "relative_gt_200pct_AND_z_gt_5": 3.37565723
+          }
+        },
+        "distance_lte_1km": {
+          "n": 6375,
+          "relative_deviation": {
+            "median": -0.01785714,
+            "p75": 0.79232721,
+            "p90": 2.98852149,
+            "p95": 6.31988021,
+            "p99": 32.32417569,
+            "max": 2931.97109307
+          },
+          "robust_z": {
+            "median": -0.03144479,
+            "p75": 1.31809722,
+            "p90": 4.66362211,
+            "p95": 11.07824978,
+            "p99": 61.16962729,
+            "max": 6062.84349809
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 37.42745098,
+            "relative_gt_50pct": 30.50980392,
+            "relative_gt_100pct": 22.02352941,
+            "relative_gt_200pct": 13.89803922,
+            "robust_z_gt_2": 19.67058824,
+            "robust_z_gt_3": 14.58823529,
+            "robust_z_gt_4": 11.67058824,
+            "robust_z_gt_5": 9.36470588,
+            "relative_gt_50pct_AND_z_gt_2": 19.67058824,
+            "relative_gt_100pct_AND_z_gt_3": 14.57254902,
+            "relative_gt_200pct_AND_z_gt_5": 9.34901961
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00263439,
+            "p75": 0.33877379,
+            "p90": 0.88497477,
+            "p95": 1.41835087,
+            "p99": 3.35875667,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.00757525,
+            "p75": 0.95225257,
+            "p90": 2.37017518,
+            "p95": 3.6078137,
+            "p99": 7.84698937,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.7709404,
+            "relative_gt_50pct": 18.41326027,
+            "relative_gt_100pct": 8.51570743,
+            "relative_gt_200pct": 2.81474422,
+            "robust_z_gt_2": 12.49787277,
+            "robust_z_gt_3": 6.93985909,
+            "robust_z_gt_4": 4.10809707,
+            "robust_z_gt_5": 2.6888125,
+            "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+            "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+            "relative_gt_200pct_AND_z_gt_5": 2.07957524
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.49496846,
+        "p75": 4.823814,
+        "p90": 10.64131702,
+        "p95": 21.75599238,
+        "p99": 113.33333333,
+        "max": 28150.0
+      }
+    },
+    {
+      "history_mode": "fixed_history",
+      "scenario": "distancia_gt_0_5km",
+      "minimum_distance_km_strict": 0.5,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 33528,
+      "records_discarded_by_filter": 3562,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 33528,
+      "valid_temporal_2025": 33528,
+      "evaluable_2025": 32342,
+      "coverage_pct_of_valid_temporal": 96.46265808,
+      "baseline_type": {
+        "contextual": 29990,
+        "vehicle_fallback": 2352
+      },
+      "not_evaluable": {
+        "total": 1186,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1186
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 32342,
+          "relative_deviation": {
+            "median": -0.01210028,
+            "p75": 0.32757468,
+            "p90": 0.88543176,
+            "p95": 1.43878739,
+            "p99": 3.51994654,
+            "max": 56.13924484
+          },
+          "robust_z": {
+            "median": -0.0333707,
+            "p75": 0.90369554,
+            "p90": 2.32574186,
+            "p95": 3.60271181,
+            "p99": 8.13415767,
+            "max": 120.28375225
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.04891472,
+            "relative_gt_50pct": 18.16832602,
+            "relative_gt_100pct": 8.56162266,
+            "relative_gt_200pct": 2.98373632,
+            "robust_z_gt_2": 12.12046256,
+            "robust_z_gt_3": 6.81466823,
+            "robust_z_gt_4": 4.12157566,
+            "robust_z_gt_5": 2.75183971,
+            "relative_gt_50pct_AND_z_gt_2": 11.64430153,
+            "relative_gt_100pct_AND_z_gt_3": 5.73866799,
+            "relative_gt_200pct_AND_z_gt_5": 2.19837982
+          }
+        },
+        "distance_lte_1km": {
+          "n": 2961,
+          "relative_deviation": {
+            "median": -0.17859477,
+            "p75": 0.17186682,
+            "p90": 0.89230939,
+            "p95": 1.7904943,
+            "p99": 5.86240368,
+            "max": 56.13924484
+          },
+          "robust_z": {
+            "median": -0.32922517,
+            "p75": 0.30169176,
+            "p90": 1.66791264,
+            "p95": 3.3498423,
+            "p99": 12.21001105,
+            "max": 120.28375225
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 21.88449848,
+            "relative_gt_50pct": 15.73792638,
+            "relative_gt_100pct": 9.01722391,
+            "relative_gt_200pct": 4.66058764,
+            "robust_z_gt_2": 8.3755488,
+            "robust_z_gt_3": 5.57244174,
+            "robust_z_gt_4": 4.25531915,
+            "robust_z_gt_5": 3.37723742,
+            "relative_gt_50pct_AND_z_gt_2": 8.3755488,
+            "relative_gt_100pct_AND_z_gt_3": 5.53866937,
+            "relative_gt_200pct_AND_z_gt_5": 3.37723742
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00263439,
+            "p75": 0.33877379,
+            "p90": 0.88497477,
+            "p95": 1.41835087,
+            "p99": 3.35875667,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.00757525,
+            "p75": 0.95225257,
+            "p90": 2.37017518,
+            "p95": 3.6078137,
+            "p99": 7.84698937,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.7709404,
+            "relative_gt_50pct": 18.41326027,
+            "relative_gt_100pct": 8.51570743,
+            "relative_gt_200pct": 2.81474422,
+            "robust_z_gt_2": 12.49787277,
+            "robust_z_gt_3": 6.93985909,
+            "robust_z_gt_4": 4.10809707,
+            "robust_z_gt_5": 2.6888125,
+            "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+            "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+            "relative_gt_200pct_AND_z_gt_5": 2.07957524
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.24832082,
+        "p75": 3.93939394,
+        "p90": 6.71171071,
+        "p95": 9.98608585,
+        "p99": 23.28570846,
+        "max": 158.07692308
+      }
+    },
+    {
+      "history_mode": "fixed_history",
+      "scenario": "distancia_gt_1km",
+      "minimum_distance_km_strict": 1.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 30506,
+      "records_discarded_by_filter": 6584,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 30506,
+      "valid_temporal_2025": 30506,
+      "evaluable_2025": 29381,
+      "coverage_pct_of_valid_temporal": 96.31220088,
+      "baseline_type": {
+        "contextual": 27050,
+        "vehicle_fallback": 2331
+      },
+      "not_evaluable": {
+        "total": 1125,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1125
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00263439,
+            "p75": 0.33877379,
+            "p90": 0.88497477,
+            "p95": 1.41835087,
+            "p99": 3.35875667,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.00757525,
+            "p75": 0.95225257,
+            "p90": 2.37017518,
+            "p95": 3.6078137,
+            "p99": 7.84698937,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.7709404,
+            "relative_gt_50pct": 18.41326027,
+            "relative_gt_100pct": 8.51570743,
+            "relative_gt_200pct": 2.81474422,
+            "robust_z_gt_2": 12.49787277,
+            "robust_z_gt_3": 6.93985909,
+            "robust_z_gt_4": 4.10809707,
+            "robust_z_gt_5": 2.6888125,
+            "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+            "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+            "relative_gt_200pct_AND_z_gt_5": 2.07957524
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00263439,
+            "p75": 0.33877379,
+            "p90": 0.88497477,
+            "p95": 1.41835087,
+            "p99": 3.35875667,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.00757525,
+            "p75": 0.95225257,
+            "p90": 2.37017518,
+            "p95": 3.6078137,
+            "p99": 7.84698937,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.7709404,
+            "relative_gt_50pct": 18.41326027,
+            "relative_gt_100pct": 8.51570743,
+            "relative_gt_200pct": 2.81474422,
+            "robust_z_gt_2": 12.49787277,
+            "robust_z_gt_3": 6.93985909,
+            "robust_z_gt_4": 4.10809707,
+            "robust_z_gt_5": 2.6888125,
+            "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+            "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+            "relative_gt_200pct_AND_z_gt_5": 2.07957524
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.06874099,
+        "p75": 3.39550187,
+        "p90": 5.37210474,
+        "p95": 7.3775783,
+        "p99": 15.04045203,
+        "max": 96.6641957
+      }
+    },
+    {
+      "history_mode": "fixed_history",
+      "scenario": "distancia_gt_2km",
+      "minimum_distance_km_strict": 2.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 28049,
+      "records_discarded_by_filter": 9041,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 28049,
+      "valid_temporal_2025": 28049,
+      "evaluable_2025": 26947,
+      "coverage_pct_of_valid_temporal": 96.07116118,
+      "baseline_type": {
+        "contextual": 24809,
+        "vehicle_fallback": 2138
+      },
+      "not_evaluable": {
+        "total": 1102,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1102
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 26947,
+          "relative_deviation": {
+            "median": -0.00200841,
+            "p75": 0.3236856,
+            "p90": 0.82492733,
+            "p95": 1.3053654,
+            "p99": 2.82694453,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": -0.00602319,
+            "p75": 0.93587815,
+            "p90": 2.30344678,
+            "p95": 3.47745341,
+            "p99": 7.24886768,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.01992801,
+            "relative_gt_50pct": 17.61606116,
+            "relative_gt_100pct": 7.70030059,
+            "relative_gt_200pct": 2.30452369,
+            "robust_z_gt_2": 12.04215683,
+            "robust_z_gt_3": 6.52391732,
+            "robust_z_gt_4": 3.74438713,
+            "robust_z_gt_5": 2.40100939,
+            "relative_gt_50pct_AND_z_gt_2": 11.47066464,
+            "relative_gt_100pct_AND_z_gt_3": 5.25104835,
+            "relative_gt_200pct_AND_z_gt_5": 1.74787546
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 26947,
+          "relative_deviation": {
+            "median": -0.00200841,
+            "p75": 0.3236856,
+            "p90": 0.82492733,
+            "p95": 1.3053654,
+            "p99": 2.82694453,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": -0.00602319,
+            "p75": 0.93587815,
+            "p90": 2.30344678,
+            "p95": 3.47745341,
+            "p99": 7.24886768,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.01992801,
+            "relative_gt_50pct": 17.61606116,
+            "relative_gt_100pct": 7.70030059,
+            "relative_gt_200pct": 2.30452369,
+            "robust_z_gt_2": 12.04215683,
+            "robust_z_gt_3": 6.52391732,
+            "robust_z_gt_4": 3.74438713,
+            "robust_z_gt_5": 2.40100939,
+            "relative_gt_50pct_AND_z_gt_2": 11.47066464,
+            "relative_gt_100pct_AND_z_gt_3": 5.25104835,
+            "relative_gt_200pct_AND_z_gt_5": 1.74787546
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 1.94940476,
+        "p75": 3.03179056,
+        "p90": 4.67756861,
+        "p95": 6.27807161,
+        "p99": 11.88356854,
+        "max": 96.6641957
+      }
+    },
+    {
+      "history_mode": "fixed_history",
+      "scenario": "distancia_gt_5km",
+      "minimum_distance_km_strict": 5.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 24119,
+      "records_discarded_by_filter": 12971,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 24119,
+      "valid_temporal_2025": 24119,
+      "evaluable_2025": 23096,
+      "coverage_pct_of_valid_temporal": 95.75853062,
+      "baseline_type": {
+        "contextual": 21160,
+        "vehicle_fallback": 1936
+      },
+      "not_evaluable": {
+        "total": 1023,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1023
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 23096,
+          "relative_deviation": {
+            "median": -0.00475568,
+            "p75": 0.30460785,
+            "p90": 0.77373281,
+            "p95": 1.18784445,
+            "p99": 2.45366331,
+            "max": 11.35805629
+          },
+          "robust_z": {
+            "median": -0.01427462,
+            "p75": 0.90788059,
+            "p90": 2.22266852,
+            "p95": 3.31886464,
+            "p99": 6.76385572,
+            "max": 50.22066424
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 28.16937998,
+            "relative_gt_50pct": 16.72151022,
+            "relative_gt_100pct": 6.82369241,
+            "relative_gt_200pct": 1.78385868,
+            "robust_z_gt_2": 11.49549706,
+            "robust_z_gt_3": 6.0140284,
+            "robust_z_gt_4": 3.37287842,
+            "robust_z_gt_5": 2.05663318,
+            "relative_gt_50pct_AND_z_gt_2": 10.82871493,
+            "relative_gt_100pct_AND_z_gt_3": 4.58953931,
+            "relative_gt_200pct_AND_z_gt_5": 1.36820229
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 23096,
+          "relative_deviation": {
+            "median": -0.00475568,
+            "p75": 0.30460785,
+            "p90": 0.77373281,
+            "p95": 1.18784445,
+            "p99": 2.45366331,
+            "max": 11.35805629
+          },
+          "robust_z": {
+            "median": -0.01427462,
+            "p75": 0.90788059,
+            "p90": 2.22266852,
+            "p95": 3.31886464,
+            "p99": 6.76385572,
+            "max": 50.22066424
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 28.16937998,
+            "relative_gt_50pct": 16.72151022,
+            "relative_gt_100pct": 6.82369241,
+            "relative_gt_200pct": 1.78385868,
+            "robust_z_gt_2": 11.49549706,
+            "robust_z_gt_3": 6.0140284,
+            "robust_z_gt_4": 3.37287842,
+            "robust_z_gt_5": 2.05663318,
+            "relative_gt_50pct_AND_z_gt_2": 10.82871493,
+            "relative_gt_100pct_AND_z_gt_3": 4.58953931,
+            "relative_gt_200pct_AND_z_gt_5": 1.36820229
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 1.78008,
+        "p75": 2.63756511,
+        "p90": 3.98382653,
+        "p95": 5.17639383,
+        "p99": 8.94061289,
+        "max": 40.51408538
+      }
+    },
+    {
+      "history_mode": "filtered_history",
+      "scenario": "sin_filtro",
+      "minimum_distance_km_strict": null,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 37090,
+      "records_discarded_by_filter": 0,
+      "history_valid_records": 19593,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 159,
+      "total_2025": 37090,
+      "valid_temporal_2025": 37090,
+      "evaluable_2025": 35756,
+      "coverage_pct_of_valid_temporal": 96.40334322,
+      "baseline_type": {
+        "contextual": 33269,
+        "vehicle_fallback": 2487
+      },
+      "not_evaluable": {
+        "total": 1334,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1334
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 35756,
+          "relative_deviation": {
+            "median": 0.00023585,
+            "p75": 0.37536618,
+            "p90": 1.07763593,
+            "p95": 1.93267234,
+            "p99": 6.59757784,
+            "max": 2931.97109307
+          },
+          "robust_z": {
+            "median": 0.00058033,
+            "p75": 0.9954426,
+            "p90": 2.61306014,
+            "p95": 4.21981624,
+            "p99": 13.0071984,
+            "max": 6062.84349809
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 31.13603311,
+            "relative_gt_50pct": 20.56997427,
+            "relative_gt_100pct": 10.92404072,
+            "relative_gt_200pct": 4.79080434,
+            "robust_z_gt_2": 13.7767088,
+            "robust_z_gt_3": 8.30350151,
+            "robust_z_gt_4": 5.45642689,
+            "robust_z_gt_5": 3.87906925,
+            "relative_gt_50pct_AND_z_gt_2": 13.34601186,
+            "relative_gt_100pct_AND_z_gt_3": 7.33023828,
+            "relative_gt_200pct_AND_z_gt_5": 3.37565723
+          }
+        },
+        "distance_lte_1km": {
+          "n": 6375,
+          "relative_deviation": {
+            "median": -0.01785714,
+            "p75": 0.79232721,
+            "p90": 2.98852149,
+            "p95": 6.31988021,
+            "p99": 32.32417569,
+            "max": 2931.97109307
+          },
+          "robust_z": {
+            "median": -0.03144479,
+            "p75": 1.31809722,
+            "p90": 4.66362211,
+            "p95": 11.07824978,
+            "p99": 61.16962729,
+            "max": 6062.84349809
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 37.42745098,
+            "relative_gt_50pct": 30.50980392,
+            "relative_gt_100pct": 22.02352941,
+            "relative_gt_200pct": 13.89803922,
+            "robust_z_gt_2": 19.67058824,
+            "robust_z_gt_3": 14.58823529,
+            "robust_z_gt_4": 11.67058824,
+            "robust_z_gt_5": 9.36470588,
+            "relative_gt_50pct_AND_z_gt_2": 19.67058824,
+            "relative_gt_100pct_AND_z_gt_3": 14.57254902,
+            "relative_gt_200pct_AND_z_gt_5": 9.34901961
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00263439,
+            "p75": 0.33877379,
+            "p90": 0.88497477,
+            "p95": 1.41835087,
+            "p99": 3.35875667,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.00757525,
+            "p75": 0.95225257,
+            "p90": 2.37017518,
+            "p95": 3.6078137,
+            "p99": 7.84698937,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.7709404,
+            "relative_gt_50pct": 18.41326027,
+            "relative_gt_100pct": 8.51570743,
+            "relative_gt_200pct": 2.81474422,
+            "robust_z_gt_2": 12.49787277,
+            "robust_z_gt_3": 6.93985909,
+            "robust_z_gt_4": 4.10809707,
+            "robust_z_gt_5": 2.6888125,
+            "relative_gt_50pct_AND_z_gt_2": 11.97372452,
+            "relative_gt_100pct_AND_z_gt_3": 5.75882373,
+            "relative_gt_200pct_AND_z_gt_5": 2.07957524
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.49496846,
+        "p75": 4.823814,
+        "p90": 10.64131702,
+        "p95": 21.75599238,
+        "p99": 113.33333333,
+        "max": 28150.0
+      }
+    },
+    {
+      "history_mode": "filtered_history",
+      "scenario": "distancia_gt_0_5km",
+      "minimum_distance_km_strict": 0.5,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 33528,
+      "records_discarded_by_filter": 3562,
+      "history_valid_records": 17573,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 149,
+      "total_2025": 33528,
+      "valid_temporal_2025": 33528,
+      "evaluable_2025": 32342,
+      "coverage_pct_of_valid_temporal": 96.46265808,
+      "baseline_type": {
+        "contextual": 29554,
+        "vehicle_fallback": 2788
+      },
+      "not_evaluable": {
+        "total": 1186,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1186
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 32342,
+          "relative_deviation": {
+            "median": 0.0096713,
+            "p75": 0.36369203,
+            "p90": 1.00293577,
+            "p95": 1.77134396,
+            "p99": 5.64153421,
+            "max": 60.4834796
+          },
+          "robust_z": {
+            "median": 0.02731305,
+            "p75": 1.02247709,
+            "p90": 2.63614664,
+            "p95": 4.32615809,
+            "p99": 12.83013169,
+            "max": 137.17642608
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 30.88862779,
+            "relative_gt_50pct": 19.93383217,
+            "relative_gt_100pct": 10.04266898,
+            "relative_gt_200pct": 4.26380558,
+            "robust_z_gt_2": 13.89524457,
+            "robust_z_gt_3": 8.39156515,
+            "robust_z_gt_4": 5.56861048,
+            "robust_z_gt_5": 4.04118484,
+            "relative_gt_50pct_AND_z_gt_2": 13.41908354,
+            "relative_gt_100pct_AND_z_gt_3": 7.30319708,
+            "relative_gt_200pct_AND_z_gt_5": 3.45989735
+          }
+        },
+        "distance_lte_1km": {
+          "n": 2961,
+          "relative_deviation": {
+            "median": 0.04677838,
+            "p75": 0.86708795,
+            "p90": 4.80405091,
+            "p95": 8.18949039,
+            "p99": 23.68729494,
+            "max": 60.4834796
+          },
+          "robust_z": {
+            "median": 0.1092732,
+            "p75": 2.0076758,
+            "p90": 10.01408636,
+            "p95": 18.6360116,
+            "p99": 47.42077042,
+            "max": 137.17642608
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 38.93954745,
+            "relative_gt_50pct": 31.74603175,
+            "relative_gt_100pct": 23.47180007,
+            "relative_gt_200pct": 17.49408983,
+            "robust_z_gt_2": 25.02532928,
+            "robust_z_gt_3": 20.63492063,
+            "robust_z_gt_4": 17.7980412,
+            "robust_z_gt_5": 15.60283688,
+            "relative_gt_50pct_AND_z_gt_2": 25.02532928,
+            "relative_gt_100pct_AND_z_gt_3": 20.53360351,
+            "relative_gt_200pct_AND_z_gt_5": 15.29888551
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00634628,
+            "p75": 0.34380166,
+            "p90": 0.89898045,
+            "p95": 1.43701184,
+            "p99": 3.5014666,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.01811352,
+            "p75": 0.97939356,
+            "p90": 2.40614134,
+            "p95": 3.6917204,
+            "p99": 8.48652778,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 30.07726081,
+            "relative_gt_50pct": 18.7434056,
+            "relative_gt_100pct": 8.689289,
+            "relative_gt_200pct": 2.93046527,
+            "robust_z_gt_2": 12.77356114,
+            "robust_z_gt_3": 7.15768694,
+            "robust_z_gt_4": 4.3361356,
+            "robust_z_gt_5": 2.8760083,
+            "relative_gt_50pct_AND_z_gt_2": 12.24941289,
+            "relative_gt_100pct_AND_z_gt_3": 5.96984446,
+            "relative_gt_200pct_AND_z_gt_5": 2.26677104
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.24832082,
+        "p75": 3.93939394,
+        "p90": 6.71171071,
+        "p95": 9.98608585,
+        "p99": 23.28570846,
+        "max": 158.07692308
+      }
+    },
+    {
+      "history_mode": "filtered_history",
+      "scenario": "distancia_gt_1km",
+      "minimum_distance_km_strict": 1.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 30506,
+      "records_discarded_by_filter": 6584,
+      "history_valid_records": 16090,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 135,
+      "total_2025": 30506,
+      "valid_temporal_2025": 30506,
+      "evaluable_2025": 29381,
+      "coverage_pct_of_valid_temporal": 96.31220088,
+      "baseline_type": {
+        "contextual": 27050,
+        "vehicle_fallback": 2331
+      },
+      "not_evaluable": {
+        "total": 1125,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1125
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00815985,
+            "p75": 0.34700315,
+            "p90": 0.90892574,
+            "p95": 1.45972501,
+            "p99": 3.57447383,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.0227778,
+            "p75": 0.99002069,
+            "p90": 2.43887249,
+            "p95": 3.75361187,
+            "p99": 8.92543791,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 30.28828154,
+            "relative_gt_50pct": 18.88975869,
+            "relative_gt_100pct": 8.8084136,
+            "relative_gt_200pct": 3.02576495,
+            "robust_z_gt_2": 12.97777475,
+            "robust_z_gt_3": 7.35168987,
+            "robust_z_gt_4": 4.49950648,
+            "robust_z_gt_5": 3.05639699,
+            "relative_gt_50pct_AND_z_gt_2": 12.45362649,
+            "relative_gt_100pct_AND_z_gt_3": 6.16044382,
+            "relative_gt_200pct_AND_z_gt_5": 2.41993125
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 29381,
+          "relative_deviation": {
+            "median": 0.00815985,
+            "p75": 0.34700315,
+            "p90": 0.90892574,
+            "p95": 1.45972501,
+            "p99": 3.57447383,
+            "max": 24.73479599
+          },
+          "robust_z": {
+            "median": 0.0227778,
+            "p75": 0.99002069,
+            "p90": 2.43887249,
+            "p95": 3.75361187,
+            "p99": 8.92543791,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 30.28828154,
+            "relative_gt_50pct": 18.88975869,
+            "relative_gt_100pct": 8.8084136,
+            "relative_gt_200pct": 3.02576495,
+            "robust_z_gt_2": 12.97777475,
+            "robust_z_gt_3": 7.35168987,
+            "robust_z_gt_4": 4.49950648,
+            "robust_z_gt_5": 3.05639699,
+            "relative_gt_50pct_AND_z_gt_2": 12.45362649,
+            "relative_gt_100pct_AND_z_gt_3": 6.16044382,
+            "relative_gt_200pct_AND_z_gt_5": 2.41993125
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 2.06874099,
+        "p75": 3.39550187,
+        "p90": 5.37210474,
+        "p95": 7.3775783,
+        "p99": 15.04045203,
+        "max": 96.6641957
+      }
+    },
+    {
+      "history_mode": "filtered_history",
+      "scenario": "distancia_gt_2km",
+      "minimum_distance_km_strict": 2.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 28049,
+      "records_discarded_by_filter": 9041,
+      "history_valid_records": 14720,
+      "history_eligible_vehicles": 30,
+      "history_eligible_contexts": 122,
+      "total_2025": 28049,
+      "valid_temporal_2025": 28049,
+      "evaluable_2025": 26947,
+      "coverage_pct_of_valid_temporal": 96.07116118,
+      "baseline_type": {
+        "contextual": 24809,
+        "vehicle_fallback": 2138
+      },
+      "not_evaluable": {
+        "total": 1102,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1102
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 26947,
+          "relative_deviation": {
+            "median": 0.004212,
+            "p75": 0.33432075,
+            "p90": 0.84611294,
+            "p95": 1.3460171,
+            "p99": 3.04522136,
+            "max": 24.955437
+          },
+          "robust_z": {
+            "median": 0.0124256,
+            "p75": 0.9783505,
+            "p90": 2.37566132,
+            "p95": 3.61008459,
+            "p99": 7.96603606,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.63966304,
+            "relative_gt_50pct": 18.17270939,
+            "relative_gt_100pct": 7.98604668,
+            "relative_gt_200pct": 2.50120607,
+            "robust_z_gt_2": 12.53571826,
+            "robust_z_gt_3": 6.95439195,
+            "robust_z_gt_4": 4.10806398,
+            "robust_z_gt_5": 2.7127324,
+            "relative_gt_50pct_AND_z_gt_2": 11.96422607,
+            "relative_gt_100pct_AND_z_gt_3": 5.67039002,
+            "relative_gt_200pct_AND_z_gt_5": 2.02991057
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 26947,
+          "relative_deviation": {
+            "median": 0.004212,
+            "p75": 0.33432075,
+            "p90": 0.84611294,
+            "p95": 1.3460171,
+            "p99": 3.04522136,
+            "max": 24.955437
+          },
+          "robust_z": {
+            "median": 0.0124256,
+            "p75": 0.9783505,
+            "p90": 2.37566132,
+            "p95": 3.61008459,
+            "p99": 7.96603606,
+            "max": 68.46745013
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 29.63966304,
+            "relative_gt_50pct": 18.17270939,
+            "relative_gt_100pct": 7.98604668,
+            "relative_gt_200pct": 2.50120607,
+            "robust_z_gt_2": 12.53571826,
+            "robust_z_gt_3": 6.95439195,
+            "robust_z_gt_4": 4.10806398,
+            "robust_z_gt_5": 2.7127324,
+            "relative_gt_50pct_AND_z_gt_2": 11.96422607,
+            "relative_gt_100pct_AND_z_gt_3": 5.67039002,
+            "relative_gt_200pct_AND_z_gt_5": 2.02991057
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 1.94940476,
+        "p75": 3.03179056,
+        "p90": 4.67756861,
+        "p95": 6.27807161,
+        "p99": 11.88356854,
+        "max": 96.6641957
+      }
+    },
+    {
+      "history_mode": "filtered_history",
+      "scenario": "distancia_gt_5km",
+      "minimum_distance_km_strict": 5.0,
+      "valid_records_initial": 37090,
+      "records_after_distance_filter": 24119,
+      "records_discarded_by_filter": 12971,
+      "history_valid_records": 12383,
+      "history_eligible_vehicles": 29,
+      "history_eligible_contexts": 105,
+      "total_2025": 24119,
+      "valid_temporal_2025": 24119,
+      "evaluable_2025": 22790,
+      "coverage_pct_of_valid_temporal": 94.4898213,
+      "baseline_type": {
+        "contextual": 21073,
+        "vehicle_fallback": 1717
+      },
+      "not_evaluable": {
+        "total": 1329,
+        "reasons": {
+          "NO_HISTORICAL_BASELINE": 1329
+        }
+      },
+      "mad_zero": 0,
+      "groups": {
+        "all_evaluable": {
+          "n": 22790,
+          "relative_deviation": {
+            "median": 0.00335475,
+            "p75": 0.31894839,
+            "p90": 0.79846037,
+            "p95": 1.22357537,
+            "p99": 2.58170329,
+            "max": 11.35805629
+          },
+          "robust_z": {
+            "median": 0.01098751,
+            "p75": 0.95822938,
+            "p90": 2.31560857,
+            "p95": 3.48155765,
+            "p99": 7.03568308,
+            "max": 50.22066424
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 28.95129443,
+            "relative_gt_50pct": 17.36726634,
+            "relative_gt_100pct": 7.19175077,
+            "relative_gt_200pct": 1.9921018,
+            "robust_z_gt_2": 12.14129004,
+            "robust_z_gt_3": 6.52479158,
+            "robust_z_gt_4": 3.69021501,
+            "robust_z_gt_5": 2.27731461,
+            "relative_gt_50pct_AND_z_gt_2": 11.51382185,
+            "relative_gt_100pct_AND_z_gt_3": 5.09433962,
+            "relative_gt_200pct_AND_z_gt_5": 1.56208864
+          }
+        },
+        "distance_lte_1km": {
+          "n": 0,
+          "relative_deviation": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "robust_z": {
+            "median": null,
+            "p75": null,
+            "p90": null,
+            "p95": null,
+            "p99": null,
+            "max": null
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 0.0,
+            "relative_gt_50pct": 0.0,
+            "relative_gt_100pct": 0.0,
+            "relative_gt_200pct": 0.0,
+            "robust_z_gt_2": 0.0,
+            "robust_z_gt_3": 0.0,
+            "robust_z_gt_4": 0.0,
+            "robust_z_gt_5": 0.0,
+            "relative_gt_50pct_AND_z_gt_2": 0.0,
+            "relative_gt_100pct_AND_z_gt_3": 0.0,
+            "relative_gt_200pct_AND_z_gt_5": 0.0
+          }
+        },
+        "distance_gt_1km": {
+          "n": 22790,
+          "relative_deviation": {
+            "median": 0.00335475,
+            "p75": 0.31894839,
+            "p90": 0.79846037,
+            "p95": 1.22357537,
+            "p99": 2.58170329,
+            "max": 11.35805629
+          },
+          "robust_z": {
+            "median": 0.01098751,
+            "p75": 0.95822938,
+            "p90": 2.31560857,
+            "p95": 3.48155765,
+            "p99": 7.03568308,
+            "max": 50.22066424
+          },
+          "candidate_rule_percentages": {
+            "relative_gt_25pct": 28.95129443,
+            "relative_gt_50pct": 17.36726634,
+            "relative_gt_100pct": 7.19175077,
+            "relative_gt_200pct": 1.9921018,
+            "robust_z_gt_2": 12.14129004,
+            "robust_z_gt_3": 6.52479158,
+            "robust_z_gt_4": 3.69021501,
+            "robust_z_gt_5": 2.27731461,
+            "relative_gt_50pct_AND_z_gt_2": 11.51382185,
+            "relative_gt_100pct_AND_z_gt_3": 5.09433962,
+            "relative_gt_200pct_AND_z_gt_5": 1.56208864
+          }
+        }
+      },
+      "minutes_per_km": {
+        "median": 1.78008,
+        "p75": 2.63756511,
+        "p90": 3.98382653,
+        "p95": 5.17639383,
+        "p99": 8.94061289,
+        "max": 40.51408538
+      }
+    }
+  ],
+  "selection_status": "PENDING_TECHNICAL_CONFIRMATION",
+  "final_2026_executed": false
+}

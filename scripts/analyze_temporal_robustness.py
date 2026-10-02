@@ -2,6 +2,8 @@
 
 The output describes temporal deviation for comparable-distance trips. It does
 not classify causes, implement a temporal detector or select thresholds.
+
+The temporal split is configurable; defaults preserve the original experiment.
 """
 
 from __future__ import annotations
@@ -14,6 +16,7 @@ from pathlib import Path
 from statistics import median
 
 from analyze_duration_distance_feasibility import transform_duration_distance
+from experimental_split import validate_split
 from compare_baselines import RANGES, distance_range, number, parse_number, parse_start_date, percentile
 
 
@@ -88,12 +91,13 @@ def group_summary(records: list[dict]) -> dict:
     }
 
 
-def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
+def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    validate_split(history_years, evaluation_year)
     history, evaluation = [], []
     with input_path.open("r", encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file, delimiter=";"):
             start = parse_start_date(row["Fecha de inicio"])
-            if start.year not in (2024, 2025, 2026):
+            if start.year not in (*history_years, evaluation_year):
                 continue
             duration = parse_number(row["Duracion"])
             distance = parse_number(row["Distancia"])
@@ -106,14 +110,14 @@ def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
             if reason is None:
                 distance_km, duration_minutes, minutes_per_km = transform_duration_distance(duration, distance)
                 record.update({"distance_km": distance_km, "range": distance_range(distance_km), "duration_minutes": duration_minutes, "minutes_per_km": minutes_per_km})
-            if start.year == 2026:
+            if start.year == evaluation_year:
                 evaluation.append(record)
             elif reason is None:
                 history.append(record)
     return history, evaluation
 
 
-def analyze(history: list[dict], evaluation: list[dict]) -> dict:
+def analyze(history: list[dict], evaluation: list[dict], evaluation_year: int = 2026) -> dict:
     vehicles, contexts = build_scopes(history)
     evaluated = []
     not_evaluable = Counter()
@@ -138,9 +142,9 @@ def analyze(history: list[dict], evaluation: list[dict]) -> dict:
 
     valid = sum(record["reason"] is None for record in evaluation)
     return {
-        "total_2026": len(evaluation),
-        "valid_temporal_2026": valid,
-        "evaluable_2026": len(evaluated),
+        f"total_{evaluation_year}": len(evaluation),
+        f"valid_temporal_{evaluation_year}": valid,
+        f"evaluable_{evaluation_year}": len(evaluated),
         "coverage_pct_of_valid_temporal": percentage(len(evaluated), valid),
         "baseline_type": dict(baseline_types),
         "not_evaluable": {"total": sum(not_evaluable.values()), "reasons": dict(not_evaluable)},
@@ -153,15 +157,17 @@ def analyze(history: list[dict], evaluation: list[dict]) -> dict:
     }
 
 
-def run(input_path: Path) -> dict:
-    return analyze(*load_records(input_path))
+def run(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> dict:
+    return analyze(*load_records(input_path, history_years, evaluation_year), evaluation_year=evaluation_year)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/datos_operativa.csv"))
+    parser.add_argument("--history-years", type=int, nargs="+", default=[2024, 2025])
+    parser.add_argument("--evaluation-year", type=int, default=2026)
     args = parser.parse_args()
-    print(json.dumps(run(args.input), indent=2, ensure_ascii=False))
+    print(json.dumps(run(args.input, tuple(args.history_years), args.evaluation_year), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
