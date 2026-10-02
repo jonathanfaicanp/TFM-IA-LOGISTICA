@@ -2,6 +2,8 @@
 
 Construction is limited to 2024-2025 B30/MAD scopes. Rules are descriptive
 scenarios only: output contains aggregates, never alerts or individual trips.
+
+The temporal split is configurable; defaults preserve the original experiment.
 """
 
 from __future__ import annotations
@@ -12,6 +14,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from analyze_b30_mad import build_scopes, robust_z, select_b30_scope
+from experimental_split import validate_split
 from compare_baselines import RANGES, distance_range, number, parse_number, parse_start_date, write_csv
 
 
@@ -42,19 +45,20 @@ def percentage(part: int, total: int) -> float:
     return number(100 * part / total) if total else 0.0
 
 
-def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
+def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    validate_split(history_years, evaluation_year)
     history, evaluation = [], []
     with input_path.open("r", encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file, delimiter=";"):
             date = parse_start_date(row["Fecha de inicio"])
-            if date.year not in (2024, 2025, 2026):
+            if date.year not in (*history_years, evaluation_year):
                 continue
             distance_km = parse_number(row["Distancia"]) / 1000
             consumption_liters = parse_number(row["Consumo"]) / 1000
             if distance_km <= 0 or consumption_liters <= 0:
                 continue
             record = {"vehicle": row["Codigo Vehiculo"], "range": distance_range(distance_km), "distance_km": distance_km, "l_100km": consumption_liters / distance_km * 100}
-            (evaluation if date.year == 2026 else history).append(record)
+            (evaluation if date.year == evaluation_year else history).append(record)
     return history, evaluation
 
 
@@ -120,16 +124,16 @@ def summarize_scenario(name: str, family: str, first: float, second: float | Non
     return summary, range_rows
 
 
-def run(input_path: Path, output_dir: Path) -> tuple[list[dict], list[dict]]:
-    history, evaluation = load_records(input_path)
+def run(input_path: Path, output_dir: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    history, evaluation = load_records(input_path, history_years, evaluation_year)
     all_records = evaluate_records(history, evaluation)
     summaries, range_rows = [], []
     for definition in scenario_definitions():
         summary, rows = summarize_scenario(*definition, all_records)
         summaries.append(summary); range_rows.extend(rows)
     output_dir.mkdir(parents=True, exist_ok=True)
-    write_csv(output_dir / "detector_candidate_scenarios_2026.csv", list(summaries[0]), summaries)
-    write_csv(output_dir / "detector_candidate_scenarios_by_range_2026.csv", list(range_rows[0]), range_rows)
+    write_csv(output_dir / f"detector_candidate_scenarios_{evaluation_year}.csv", list(summaries[0]), summaries)
+    write_csv(output_dir / f"detector_candidate_scenarios_by_range_{evaluation_year}.csv", list(range_rows[0]), range_rows)
     return summaries, range_rows
 
 
@@ -137,8 +141,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/datos_operativa.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("data"))
+    parser.add_argument("--history-years", type=int, nargs="+", default=[2024, 2025])
+    parser.add_argument("--evaluation-year", type=int, default=2026)
     args = parser.parse_args()
-    summaries, _ = run(args.input, args.output_dir)
+    summaries, _ = run(args.input, args.output_dir, tuple(args.history_years), args.evaluation_year)
     print(f"Escenarios evaluados: {len(summaries)}")
 
 

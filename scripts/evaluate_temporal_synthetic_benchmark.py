@@ -2,6 +2,8 @@
 
 Perturbations affect duration only and remain in memory. Metrics describe a
 controlled experimental benchmark, not performance against real inefficiency.
+
+The temporal split is configurable; defaults preserve the original experiment.
 """
 
 from __future__ import annotations
@@ -12,6 +14,7 @@ from pathlib import Path
 
 from analyze_duration_distance_feasibility import transform_duration_distance
 from analyze_temporal_robustness import build_scopes, robust_z, select_scope
+from experimental_split import validate_split
 from compare_baselines import distance_range, number, parse_number, parse_start_date, write_csv
 
 
@@ -89,17 +92,18 @@ def percentage(count: int, total: int) -> float:
     return number(100 * count / total) if total else 0.0
 
 
-def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
+def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    validate_split(history_years, evaluation_year)
     history, evaluation = [], []
     with input_path.open("r", encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file, delimiter=";"):
             year = parse_start_date(row["Fecha de inicio"]).year
-            if year not in (2024, 2025, 2026):
+            if year not in (*history_years, evaluation_year):
                 continue
             record = normalize_temporal_record(row)
             if record is None:
                 continue
-            (evaluation if year == 2026 else history).append(record)
+            (evaluation if year == evaluation_year else history).append(record)
     return history, evaluation
 
 
@@ -157,8 +161,8 @@ def build_comparison(summary_rows: list[dict]) -> list[dict]:
     return comparison
 
 
-def run(input_path: Path, output_dir: Path) -> tuple[list[dict], list[dict]]:
-    history, evaluation = load_records(input_path)
+def run(input_path: Path, output_dir: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    history, evaluation = load_records(input_path, history_years, evaluation_year)
     prepared = prepare_evaluation(history, evaluation)
     summary_rows = []
     for perturbation in PERTURBATIONS:
@@ -184,8 +188,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/datos_operativa.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("data"))
+    parser.add_argument("--history-years", type=int, nargs="+", default=[2024, 2025])
+    parser.add_argument("--evaluation-year", type=int, default=2026)
     args = parser.parse_args()
-    _, comparison = run(args.input, args.output_dir)
+    _, comparison = run(args.input, args.output_dir, tuple(args.history_years), args.evaluation_year)
     print(f"Registros evaluables: {comparison[0]['evaluable_records']}")
     print(f"Reglas comparadas: {len(comparison)}")
 

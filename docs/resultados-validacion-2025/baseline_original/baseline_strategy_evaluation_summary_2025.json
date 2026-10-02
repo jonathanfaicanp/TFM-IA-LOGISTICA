@@ -1,0 +1,91 @@
+{
+  "construction_year": 2024,
+  "evaluation_year": 2025,
+  "construction_valid_records": 14886,
+  "construction_vehicles_with_vehicle_baseline": 23,
+  "construction_vehicle_range_groups": 192,
+  "evaluation_valid_records": 24597,
+  "strategies": [
+    {
+      "strategy": "A",
+      "context_minimum_records": null,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23871,
+      "records_without_baseline": 726,
+      "coverage_pct": 97.04842054,
+      "evaluated_vehicles": 23,
+      "vehicles_with_fallback": 0,
+      "contextual_evaluations": 0,
+      "fallback_evaluations": 0,
+      "contextual_evaluations_pct": 0.0,
+      "fallback_evaluations_pct": 0.0,
+      "relative_deviation": {
+        "median": 0.00587916,
+        "p75": 0.28584914,
+        "p90": 1.02338623,
+        "p95": 2.49142942,
+        "p99": 13.27877472
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 6450,
+        "over_50pct": 4079,
+        "over_100pct": 2430,
+        "over_200pct": 1438
+      }
+    },
+    {
+      "strategy": "B30",
+      "context_minimum_records": 30,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23871,
+      "records_without_baseline": 726,
+      "coverage_pct": 97.04842054,
+      "evaluated_vehicles": 23,
+      "vehicles_with_fallback": 20,
+      "contextual_evaluations": 22166,
+      "fallback_evaluations": 1705,
+      "contextual_evaluations_pct": 92.85744208,
+      "fallback_evaluations_pct": 7.14255792,
+      "relative_deviation": {
+        "median": 0.00412149,
+        "p75": 0.16865124,
+        "p90": 0.44981819,
+        "p95": 0.80765106,
+        "p99": 3.66106735
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 4356,
+        "over_50pct": 2116,
+        "over_100pct": 957,
+        "over_200pct": 471
+      }
+    },
+    {
+      "strategy": "B50",
+      "context_minimum_records": 50,
+      "evaluation_records_total": 24597,
+      "evaluable_records": 23871,
+      "records_without_baseline": 726,
+      "coverage_pct": 97.04842054,
+      "evaluated_vehicles": 23,
+      "vehicles_with_fallback": 22,
+      "contextual_evaluations": 20386,
+      "fallback_evaluations": 3485,
+      "contextual_evaluations_pct": 85.4006954,
+      "fallback_evaluations_pct": 14.5993046,
+      "relative_deviation": {
+        "median": 0.00345449,
+        "p75": 0.17915155,
+        "p90": 0.49268293,
+        "p95": 0.96061073,
+        "p99": 6.28995622
+      },
+      "positive_deviation_counts": {
+        "over_25pct": 4614,
+        "over_50pct": 2360,
+        "over_100pct": 1156,
+        "over_200pct": 646
+      }
+    }
+  ]
+}

@@ -2,6 +2,8 @@
 
 All record-level calculations stay in memory.  Outputs are aggregate summaries
 only and robust-z values are descriptive, never anomaly classifications.
+
+The temporal split is configurable; defaults preserve the original experiment.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 from statistics import median
 
+from experimental_split import validate_split
 from compare_baselines import RANGES, distance_range, number, parse_number, parse_start_date, percentile, write_csv
 
 
@@ -41,19 +44,20 @@ def pct(count: int, total: int) -> float:
     return number(100 * count / total) if total else 0.0
 
 
-def load_records(input_path: Path) -> tuple[list[dict], list[dict]]:
+def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
+    validate_split(history_years, evaluation_year)
     history, evaluation = [], []
     with input_path.open("r", encoding="utf-8-sig", newline="") as file:
         for row in csv.DictReader(file, delimiter=";"):
             date = parse_start_date(row["Fecha de inicio"])
-            if date.year not in (2024, 2025, 2026):
+            if date.year not in (*history_years, evaluation_year):
                 continue
             distance_km = parse_number(row["Distancia"]) / 1000
             consumption_liters = parse_number(row["Consumo"]) / 1000
             if distance_km <= 0 or consumption_liters <= 0:
                 continue
             record = {"vehicle": row["Codigo Vehiculo"], "range": distance_range(distance_km), "l_100km": consumption_liters / distance_km * 100}
-            (evaluation if date.year == 2026 else history).append(record)
+            (evaluation if date.year == evaluation_year else history).append(record)
     return history, evaluation
 
 
@@ -93,8 +97,8 @@ def relative_summary(values: list[float]) -> dict:
     return distribution(values, (("median", .5), ("p75", .75), ("p90", .9), ("p95", .95), ("p99", .99)))
 
 
-def run(input_path: Path, output_dir: Path) -> dict:
-    history, evaluation = load_records(input_path)
+def run(input_path: Path, output_dir: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> dict:
+    history, evaluation = load_records(input_path, history_years, evaluation_year)
     vehicles, contexts = build_scopes(history)
     scores: list[float] = []
     relative: list[float] = []
@@ -130,11 +134,11 @@ def run(input_path: Path, output_dir: Path) -> dict:
     for vehicle_id, group in sorted(by_vehicle.items(), key=lambda item: int(item[0])):
         s = group["scores"]
         vehicle_rows.append({"codigo_vehiculo": vehicle_id, "registros_evaluables": group["evaluated"], "registros_mad_zero": group["mad_zero"], "registros_con_robust_z": len(s), "robust_z_mediana": distribution(s, (("median", .5),))["median"], "robust_z_p95": distribution(s, (("p95", .95),))["p95"], "porcentaje_robust_z_over_3": pct(sum(score > 3 for score in s), len(s)), "porcentaje_robust_z_over_5": pct(sum(score > 5 for score in s), len(s))})
-    result = {"construction_years": [2024, 2025], "evaluation_year": 2026, "history_valid_records": len(history), "evaluation_valid_records": len(evaluation), "records_evaluable": len(relative), "records_without_baseline": no_baseline, "records_mad_zero": mad_zero, "records_with_robust_z": len(scores), "relative_deviation": relative_summary(relative), "robust_z": score_summary(scores)}
+    result = {"construction_years": list(history_years), "evaluation_year": evaluation_year, "history_valid_records": len(history), "evaluation_valid_records": len(evaluation), "records_evaluable": len(relative), "records_without_baseline": no_baseline, "records_mad_zero": mad_zero, "records_with_robust_z": len(scores), "relative_deviation": relative_summary(relative), "robust_z": score_summary(scores)}
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "b30_mad_2026_summary.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    write_csv(output_dir / "b30_mad_2026_distance_summary.csv", list(range_rows[0]), range_rows)
-    write_csv(output_dir / "b30_mad_2026_vehicle_summary.csv", list(vehicle_rows[0]), vehicle_rows)
+    (output_dir / f"b30_mad_{evaluation_year}_summary.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_csv(output_dir / f"b30_mad_{evaluation_year}_distance_summary.csv", list(range_rows[0]), range_rows)
+    write_csv(output_dir / f"b30_mad_{evaluation_year}_vehicle_summary.csv", list(vehicle_rows[0]), vehicle_rows)
     return result
 
 
@@ -142,8 +146,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=Path("data/datos_operativa.csv"))
     parser.add_argument("--output-dir", type=Path, default=Path("data"))
+    parser.add_argument("--history-years", type=int, nargs="+", default=[2024, 2025])
+    parser.add_argument("--evaluation-year", type=int, default=2026)
     args = parser.parse_args()
-    print(json.dumps(run(args.input, args.output_dir), indent=2, ensure_ascii=False))
+    print(json.dumps(run(args.input, args.output_dir, tuple(args.history_years), args.evaluation_year), indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

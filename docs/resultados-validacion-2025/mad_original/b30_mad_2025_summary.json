@@ -1,0 +1,40 @@
+{
+  "construction_years": [
+    2024
+  ],
+  "evaluation_year": 2025,
+  "history_valid_records": 14886,
+  "evaluation_valid_records": 24597,
+  "records_evaluable": 23871,
+  "records_without_baseline": 726,
+  "records_mad_zero": 0,
+  "records_with_robust_z": 23871,
+  "relative_deviation": {
+    "median": 0.00412149,
+    "p75": 0.16865124,
+    "p90": 0.44981819,
+    "p95": 0.80765106,
+    "p99": 3.66106735
+  },
+  "robust_z": {
+    "median": 0.02375033,
+    "p75": 0.94434717,
+    "p90": 2.14714427,
+    "p95": 3.36060779,
+    "p99": 9.75034455,
+    "max": 2099.7407348,
+    "negative_count": 11740,
+    "zero_count": 2,
+    "positive_count": 12129,
+    "over_1": 5721,
+    "over_1_pct_of_scored": 23.96631896,
+    "over_2": 2636,
+    "over_2_pct_of_scored": 11.04268778,
+    "over_3": 1424,
+    "over_3_pct_of_scored": 5.96539734,
+    "over_4": 916,
+    "over_4_pct_of_scored": 3.83729211,
+    "over_5": 631,
+    "over_5_pct_of_scored": 2.64337481
+  }
+}
