@@ -1,5 +1,13 @@
 # Estado validado del proyecto TFM — Prototipo v1
 
+> Nota de nomenclatura revisada (04/10/2026): las menciones históricas a
+> «especificidad»/`specificity` y «recall» describen respectivamente tasa de no
+> marcado en controles y tasa de marcado tras perturbación, sin ground truth
+> real. Se conservan como trazabilidad; para resultados finales y detección
+> incremental véase [Métricas finales](metricas-finales-benchmark.md). El término
+> «sensibilidad» en análisis de parámetros conserva su sentido metodológico.
+
+
 **Estado: APROBADO PARA MEMORIA**
 
 Este documento consolida las decisiones, implementación, resultados y
@@ -216,7 +224,7 @@ automáticamente a otros modelos, prompts o poblaciones.
 - La creación de esta referencia documental no implica una nueva ejecución
   de tests ni de experimentos.
 
-## 18. Resultados validados
+## 18. Resultados históricos validados (anteriores a la política final de calidad)
 
 Cifras trasladadas de las fuentes documentales, sin reinterpretación ni recálculo.
 

@@ -1,5 +1,13 @@
 # Registro de decisiones
 
+> Nota de nomenclatura revisada (04/10/2026): las menciones históricas a
+> «especificidad»/`specificity` y «recall» describen respectivamente tasa de no
+> marcado en controles y tasa de marcado tras perturbación, sin ground truth
+> real. Se conservan como trazabilidad; para resultados finales y detección
+> incremental véase [Métricas finales](metricas-finales-benchmark.md). El término
+> «sensibilidad» en análisis de parámetros conserva su sentido metodológico.
+
+
 Este documento conserva la evolución de las decisiones del TFM y distingue las
 decisiones cerradas, las hipótesis sustituidas y los pendientes reales.
 

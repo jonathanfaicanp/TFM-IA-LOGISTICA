@@ -95,11 +95,11 @@ class SyntheticBenchmarkTests(unittest.TestCase):
                         writer.writerow({"perturbation_pct": level, "scenario": name, "scope": "completo", "recall_pct": recall, "false_negative_rate_pct": 100 - recall, "false_positive_rate_pct": 10})
             rows = build_rule_comparison(source, output)
         self.assertEqual(len(rows), 12)
-        self.assertEqual(rows[0]["control_marked_pct_experimental"], 10.0)
-        self.assertEqual(rows[0]["specificity_pct_experimental"], 90.0)
-        self.assertEqual(rows[0]["balanced_accuracy_pct_plus_25"], 55.0)
-        self.assertEqual(rows[0]["youden_j_pct_points_plus_25"], 10.0)
-        self.assertEqual(rows[0]["false_negative_rate_pct_plus_500"], 0.0)
+        self.assertEqual(rows[0]["baseline_review_rate"], .1)
+        self.assertEqual(rows[0]["baseline_non_review_rate"], .9)
+        self.assertEqual(rows[0]["post_perturbation_review_rate_plus_25"], .2)
+        self.assertIsNone(rows[0]["incremental_detection_rate_plus_25"])
+        self.assertFalse(any("recall" in key or "specificity" in key for key in rows[0]))
 
     @staticmethod
     def _history():

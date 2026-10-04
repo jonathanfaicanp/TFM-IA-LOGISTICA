@@ -1,5 +1,13 @@
 # Configuración congelada tras la validación 2024 → 2025
 
+> Nota de nomenclatura revisada (04/10/2026): las menciones históricas a
+> «especificidad»/`specificity` y «recall» describen respectivamente tasa de no
+> marcado en controles y tasa de marcado tras perturbación, sin ground truth
+> real. Se conservan como trazabilidad; para resultados finales y detección
+> incremental véase [Métricas finales](metricas-finales-benchmark.md). El término
+> «sensibilidad» en análisis de parámetros conserva su sentido metodológico.
+
+
 Fecha de congelación: **2 de octubre de 2026**, Europe/Madrid.
 
 Propósito: registrar la decisión técnica adoptada por el responsable del TFM

@@ -1,5 +1,13 @@
 # Auditor?a y validaci?n retrospectiva 2024 ? 2025
 
+> Nota de nomenclatura revisada (04/10/2026): las menciones históricas a
+> «especificidad»/`specificity` y «recall» describen respectivamente tasa de no
+> marcado en controles y tasa de marcado tras perturbación, sin ground truth
+> real. Se conservan como trazabilidad; para resultados finales y detección
+> incremental véase [Métricas finales](metricas-finales-benchmark.md). El término
+> «sensibilidad» en análisis de parámetros conserva su sentido metodológico.
+
+
 Se completan las fases 1?5. **La selecci?n sigue pendiente; no se ha ejecutado una nueva evaluaci?n de 2026 y no hay configuraci?n final congelada.** Se conserva el motor productivo. No se ha hecho commit ni push.
 
 Esta reconstrucci?n utiliza solo 2024 para las referencias y 2025 para las m?tricas nuevas. No elimina la exposici?n hist?rica a 2026 ni puede presentar ese a?o como un test prospectivamente intacto. El protocolo previo est? en [protocolo-validacion-2025.md](protocolo-validacion-2025.md).

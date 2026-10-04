@@ -10,7 +10,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import sys
+import warnings
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from evaluation.benchmark_metrics import paired_review_metrics, record_keys
 
 from analyze_duration_distance_feasibility import transform_duration_distance
 from analyze_temporal_robustness import build_scopes, robust_z, select_scope
@@ -42,6 +49,7 @@ def normalize_temporal_record(row: dict) -> dict | None:
         return None
     distance_km, duration_minutes, minutes_per_km = transform_duration_distance(duration_seconds, distance_meters)
     return {
+        **({"trip_id": row["Codigo Viaje"]} if row.get("Codigo Viaje") is not None else {}),
         "vehicle": row["Codigo Vehiculo"],
         "year": parse_start_date(row["Fecha de inicio"]).year,
         "distance_km": distance_km,
@@ -71,6 +79,8 @@ def apply_rule(relative: float, score: float, family: str, first: float, second:
 
 
 def aggregate_rates(positives: int, detected: int, controls: int, control_marked: int) -> dict:
+    """Deprecated aggregate-only adapter retained for historical imports."""
+    warnings.warn("aggregate_rates() and specificity/recall keys are deprecated; use paired_review_metrics", DeprecationWarning, stacklevel=2)
     recall = percentage(detected, positives)
     marked = percentage(control_marked, controls)
     specificity = number(100 - marked)
@@ -123,17 +133,16 @@ def prepare_evaluation(history: list[dict], evaluation: list[dict]) -> list[dict
 
 def evaluate_rule(records: list[dict], perturbation: float, rule: tuple) -> dict:
     _, family, first, second, operation = rule
-    control_marked = 0
-    detected = 0
-    for record in records:
+    controls, perturbed_flags = {}, {}
+    for key, record in zip(record_keys(records), records):
         control_relative = relative_deviation(record["minutes_per_km"], record["baseline"])
         control_score = robust_z(record["minutes_per_km"], record["baseline"], record["mad"])
-        control_marked += apply_rule(control_relative, control_score, family, first, second, operation)
+        controls[key] = apply_rule(control_relative, control_score, family, first, second, operation)
         perturbed = perturb_record(record, perturbation)
         perturbed_relative = relative_deviation(perturbed["minutes_per_km"], record["baseline"])
         perturbed_score = robust_z(perturbed["minutes_per_km"], record["baseline"], record["mad"])
-        detected += apply_rule(perturbed_relative, perturbed_score, family, first, second, operation)
-    return aggregate_rates(len(records), detected, len(records), control_marked)
+        perturbed_flags[key] = apply_rule(perturbed_relative, perturbed_score, family, first, second, operation)
+    return paired_review_metrics(controls, perturbed_flags)
 
 
 def build_comparison(summary_rows: list[dict]) -> list[dict]:
@@ -147,16 +156,14 @@ def build_comparison(summary_rows: list[dict]) -> list[dict]:
             "relative_threshold": relative_threshold if family != "D2" else None,
             "robust_z_threshold": relative_threshold if family == "D2" else robust_threshold,
             "operation": operation,
-            "evaluable_records": first["control_cases"],
-            "control_marked_pct_experimental": first["control_marked_pct_experimental"],
-            "specificity_pct_experimental": first["specificity_pct_experimental"],
+            "evaluable_records": first["n_total"],
+            "baseline_review_rate": first["baseline_review_rate"],
+            "baseline_non_review_rate": first["baseline_non_review_rate"],
         }
         for row in rows:
             level = row["perturbation_pct"]
-            result[f"recall_pct_plus_{level}"] = row["recall_pct"]
-            result[f"false_negative_rate_pct_plus_{level}"] = row["false_negative_rate_pct"]
-            result[f"balanced_accuracy_pct_plus_{level}"] = row["balanced_accuracy_pct"]
-            result[f"youden_j_pct_points_plus_{level}"] = row["youden_j_pct_points"]
+            for metric in ("post_perturbation_review_rate", "incremental_detection_rate", "n_total", "review_before", "non_review_before", "review_after", "new_reviews", "review_lost"):
+                result[f"{metric}_plus_{level}"] = row[metric]
         comparison.append(result)
     return comparison
 

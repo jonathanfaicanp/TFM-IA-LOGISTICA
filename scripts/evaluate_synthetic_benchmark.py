@@ -11,12 +11,15 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+import warnings
 from collections import Counter
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
+
+from evaluation.benchmark_metrics import paired_review_metrics, record_keys
 
 from analyze_b30_mad import build_scopes, robust_z, select_b30_scope
 from experimental_split import validate_split
@@ -72,6 +75,8 @@ def apply_rule(relative: float, score: float | None, family: str, first: float, 
 
 
 def rates(positives: int, true_positives: int, negatives: int, false_positives: int) -> dict[str, float | int]:
+    """Deprecated aggregate adapter for historical consumers; no paired rate."""
+    warnings.warn("rates() and specificity/recall keys are deprecated; use paired_review_metrics", DeprecationWarning, stacklevel=2)
     recall = 100 * true_positives / positives if positives else 0.0
     fpr = 100 * false_positives / negatives if negatives else 0.0
     return {"cases_perturbed_evaluable": positives, "detected": true_positives, "recall_pct": number(recall), "false_negatives": positives - true_positives, "false_negative_rate_pct": number(100 - recall) if positives else 0.0, "control_cases": negatives, "false_positives": false_positives, "false_positive_rate_pct": number(fpr), "specificity_pct": number(100 - fpr) if negatives else 0.0}
@@ -89,7 +94,7 @@ def load_records(input_path: Path, history_years: tuple[int, ...] = (2024, 2025)
             consumption_liters = parse_number(row["Consumo"]) / 1000
             if distance_km <= 0 or consumption_liters <= 0:
                 continue
-            record = {"vehicle": row["Codigo Vehiculo"], "range": distance_range(distance_km), "distance_km": distance_km, "consumption_liters": consumption_liters, "l_100km": consumption_liters / distance_km * 100}
+            record = {**({"trip_id": row["Codigo Viaje"]} if row.get("Codigo Viaje") is not None else {}), "vehicle": row["Codigo Vehiculo"], "range": distance_range(distance_km), "distance_km": distance_km, "consumption_liters": consumption_liters, "l_100km": consumption_liters / distance_km * 100}
             (evaluation if date.year == evaluation_year else history).append(record)
     return history, evaluation
 
@@ -128,7 +133,8 @@ def evaluate_group(records: list[dict], perturbation: float, rule: tuple) -> dic
     controls = [apply_rule(relative_deviation(record["l_100km"], record["centre"]), robust_z(record["l_100km"], record["centre"], record["scale"]), family, first, second, operation) for record in records]
     perturbed_records = [perturb_record(record, perturbation) for record in records]
     perturbed = [apply_rule(relative_deviation(record["l_100km"], record["centre"]), robust_z(record["l_100km"], record["centre"], record["scale"]), family, first, second, operation) for record in perturbed_records]
-    return rates(len(records), sum(perturbed), len(records), sum(controls))
+    keys = record_keys(records)
+    return paired_review_metrics(dict(zip(keys, controls)), dict(zip(keys, perturbed)))
 
 
 def run(input_path: Path, output_dir: Path, history_years: tuple[int, ...] = (2024, 2025), evaluation_year: int = 2026) -> tuple[list[dict], list[dict]]:
@@ -167,27 +173,32 @@ def build_rule_comparison(summary_path: Path, output_path: Path) -> list[dict]:
         levels = {int(row["perturbation_pct"]) for row in rows}
         if levels != expected_levels:
             raise ValueError(f"Missing or duplicate perturbation levels for {name}")
-        control_rates = {float(row["false_positive_rate_pct"]) for row in rows}
+        # Deprecated historical column names are input-only; never exported.
+        def current_rate(row, current, legacy):
+            if current in row:
+                return float(row[current]) if row[current] not in (None, "") else None
+            return float(row[legacy]) / 100
+        control_rates = {current_rate(row, "baseline_review_rate", "false_positive_rate_pct") for row in rows}
         if len(control_rates) != 1:
             raise ValueError(f"Control marked rate is not stable for {name}")
         control_marked = control_rates.pop()
-        specificity = 100 - control_marked
         result = {
             "scenario": name,
             "family": family,
             "relative_threshold": relative_threshold if family != "D2" else None,
             "robust_z_threshold": relative_threshold if family == "D2" else robust_threshold,
             "operation": operation,
-            "control_marked_pct_experimental": number(control_marked),
-            "specificity_pct_experimental": number(specificity),
+            "baseline_review_rate": control_marked,
+            "baseline_non_review_rate": 1 - control_marked if control_marked is not None else None,
         }
         for row in sorted(rows, key=lambda item: int(item["perturbation_pct"])):
             level = int(row["perturbation_pct"])
-            recall = float(row["recall_pct"])
-            result[f"recall_pct_plus_{level}"] = number(recall)
-            result[f"false_negative_rate_pct_plus_{level}"] = number(float(row["false_negative_rate_pct"]))
-            result[f"balanced_accuracy_pct_plus_{level}"] = number((recall + specificity) / 2)
-            result[f"youden_j_pct_points_plus_{level}"] = number(recall + specificity - 100)
+            result[f"post_perturbation_review_rate_plus_{level}"] = current_rate(row, "post_perturbation_review_rate", "recall_pct")
+            incremental = row.get("incremental_detection_rate")
+            # Historical aggregates cannot reconstruct individual transitions.
+            result[f"incremental_detection_rate_plus_{level}"] = float(incremental) if incremental not in (None, "") else None
+            for count in ("n_total", "review_before", "non_review_before", "review_after", "new_reviews", "review_lost"):
+                result[f"{count}_plus_{level}"] = int(row[count]) if row.get(count) not in (None, "") else None
         comparison.append(result)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
