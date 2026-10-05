@@ -98,5 +98,4 @@ El detector v1 delimita historia 2024–2025 y evaluación 2026. Un viaje de otr
 año, incluido 2027, devuelve `NOT_EVALUABLE`; no existe una política automática
 de actualización de referencias. Véase el [análisis de alcance](docs/alcance-2026.md).
 
-La licencia del código está pendiente de decisión del autor; no se concede
-una licencia implícita por publicar el repositorio.
+El código del proyecto se distribuye bajo la licencia [MIT](LICENSE).
