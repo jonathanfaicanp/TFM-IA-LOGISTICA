@@ -17,7 +17,7 @@ def history(index):
     }
 
 
-def trip(identifier, plate="0001ABC", consumption=100, duration=360, vehicle="V1"):
+def trip(identifier, plate="0001ZZZ", consumption=100, duration=360, vehicle="V1"):
     return {
         "Codigo Viaje": identifier, "Codigo Vehiculo": vehicle,
         "Fecha de inicio": "2026-09-07 23:59:59", "Distancia": 2000,
@@ -89,7 +89,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
             trip("R", consumption=400, duration=720), trip("N"),
             trip("U", vehicle="UNKNOWN"), trip("P", consumption=None),
         ]
-        response = await self.client.post("/evaluate-vehicle-period", json={**self.period, "matricula": "0001ABC"})
+        response = await self.client.post("/evaluate-vehicle-period", json={**self.period, "matricula": "0001ZZZ"})
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body["status_counts"], {"REVIEW": 1, "NO_RELEVANT_DEVIATION": 2, "NOT_EVALUABLE": 1})
@@ -99,7 +99,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Conductor", response.text)
         self.assertNotIn("MUST_NOT_BE_RETURNED", response.text)
         self.repository.load_operational_rows_between.assert_called_once_with(
-            datetime(2026, 9, 1), datetime(2026, 9, 8), matricula="0001ABC", limit=1001
+            datetime(2026, 9, 1), datetime(2026, 9, 8), matricula="0001ZZZ", limit=1001
         )
 
     async def test_vehicle_without_trips_returns_empty_result(self):
@@ -110,9 +110,9 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_global_period_groups_only_motor_reviews(self):
         self.repository.load_operational_rows_between.return_value = [
-            trip("R1", "0002ABC", consumption=400), trip("R2", "0002ABC", duration=1200),
-            trip("R3", "0001ABC", consumption=400), trip("N", "0003ABC"),
-            trip("U", "0004ABC", vehicle="UNKNOWN"),
+            trip("R1", "0002ZZZ", consumption=400), trip("R2", "0002ZZZ", duration=1200),
+            trip("R3", "0001ZZZ", consumption=400), trip("N", "0003ZZZ"),
+            trip("U", "0004ZZZ", vehicle="UNKNOWN"),
         ]
         response = await self.client.post("/review-vehicles-period", json=self.period)
         self.assertEqual(response.status_code, 200)
@@ -120,8 +120,8 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(body["total_trips"], 5)
         self.assertEqual(body["status_counts"], {"REVIEW": 3, "NO_RELEVANT_DEVIATION": 1, "NOT_EVALUABLE": 1})
         self.assertEqual(body["vehicles"], [
-            {"matricula": "0001ABC", "review_count": 1, "trip_ids": ["R3"]},
-            {"matricula": "0002ABC", "review_count": 2, "trip_ids": ["R1", "R2"]},
+            {"matricula": "0001ZZZ", "review_count": 1, "trip_ids": ["R3"]},
+            {"matricula": "0002ZZZ", "review_count": 2, "trip_ids": ["R1", "R2"]},
         ])
         self.repository.load_operational_rows_between.assert_called_once_with(
             datetime(2026, 9, 1), datetime(2026, 9, 8), matricula=None, limit=1001
@@ -151,14 +151,14 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([r["overall_status"] for r in expected],
                          ["REVIEW", "NO_RELEVANT_DEVIATION", "REVIEW"])
         response = await self.client.post(
-            "/evaluate-vehicle-period", json={**self.period, "matricula": "0001ABC"}
+            "/evaluate-vehicle-period", json={**self.period, "matricula": "0001ZZZ"}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["results"], expected)
         response = await self.client.post("/review-vehicles-period", json=self.period)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["vehicles"], [
-            {"matricula": "0001ABC", "review_count": 2, "trip_ids": ["R1", "R2"]}
+            {"matricula": "0001ZZZ", "review_count": 2, "trip_ids": ["R1", "R2"]}
         ])
         self.assertEqual(response.json()["status_counts"]["NO_RELEVANT_DEVIATION"], 1)
         self.assertEqual([service.evaluate(row).to_dict() for row in rows], expected)
@@ -173,7 +173,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
                 for endpoint in ["/review-vehicles-period", "/evaluate-vehicle-period"]:
                     payload = {**self.period, **changes}
                     if endpoint == "/evaluate-vehicle-period":
-                        payload["matricula"] = "0001ABC"
+                        payload["matricula"] = "0001ZZZ"
                     response = await self.client.post(endpoint, json=payload)
                     self.assertEqual(response.status_code, 422)
         self.repository.load_operational_rows_between.assert_not_called()
@@ -187,7 +187,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_empty_plate_and_extra_fields_rejected(self):
         for changes in [{"matricula": " "}, {"matricula": "X" * 33}, {"sql": "SELECT 1"}]:
-            response = await self.client.post("/evaluate-vehicle-period", json={**self.period, "matricula": "0001ABC", **changes})
+            response = await self.client.post("/evaluate-vehicle-period", json={**self.period, "matricula": "0001ZZZ", **changes})
             self.assertEqual(response.status_code, 422)
         self.repository.load_operational_rows_between.assert_not_called()
 
@@ -196,7 +196,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
         for endpoint in ["/review-vehicles-period", "/evaluate-vehicle-period"]:
             payload = dict(self.period)
             if endpoint == "/evaluate-vehicle-period":
-                payload["matricula"] = "0001ABC"
+                payload["matricula"] = "0001ZZZ"
             response = await self.client.post(endpoint, json=payload)
             self.assertEqual(response.status_code, 413)
             self.assertNotIn("results", response.json())
@@ -214,7 +214,7 @@ class PeriodApiTests(unittest.IsolatedAsyncioTestCase):
             for endpoint in ["/review-vehicles-period", "/evaluate-vehicle-period"]:
                 payload = dict(self.period)
                 if endpoint == "/evaluate-vehicle-period":
-                    payload["matricula"] = "0001ABC"
+                    payload["matricula"] = "0001ZZZ"
                 response = await self.client.post(endpoint, json=payload)
                 self.assertEqual(response.status_code, 503)
 
