@@ -6,6 +6,10 @@ Las transcripciones y cifras proceden de archivos existentes. Los documentos
 anteriores pueden describir evaluaciones históricas, que no deben confundirse
 con la muestra conversacional definitiva tras la política de calidad.
 
+Actualización documental: 5 de octubre de 2026. La cronología y la salvedad
+de la segunda evaluación se detallan en la sección 8; no se cambian resultados
+ni puntuaciones históricas.
+
 ## 1. Nueve intervalos exactos de distancia
 
 `src/data_processing.py`, función `distance_range()`, recorre los límites
@@ -290,6 +294,62 @@ contrastadas en 20 respuestas y 0 discrepancias materiales, con redondeo
 razonable y comparación de desviaciones como porcentajes. No es una medida
 de detección real de ineficiencia ni una evaluación de otra población.
 
+### Cronología de las tres evaluaciones
+
+| Evaluación | Muestra | Cambio respecto a anterior | Resultado | Incidencia/limitación | Motivo de la siguiente evaluación |
+|---|---|---|---|---|---|
+| 1. Original; documentada 04/09/2026, commit d78d816 | 20 casos, cuatro estratos de cinco; GPT-5.6-LUNA | Primera evaluación con adaptador SQL que multiplicaba adicionalmente ×1000 | 95/96 = 98,96 %; C3 19/20; claridad 3,95/5 | Absolutos de consumo incorrectos; un criterio incumplido registrado en case_006 | Corrección del adaptador y repetición sobre los mismos viajes |
+| 2. Corrección SQL; cierre documental 03/10/2026, commit 7b4042f | Exactamente los mismos 20 viajes; GPT-5.6-LUNA, mismo prompt/workflow | Adaptador corregido y resultados analíticos reconstruidos | 95/96 = 98,96 %; claridad 3,95/5 | C3 de case_006: único criterio incumplido registrado; respuesta conservada con magnitudes absolutas antiguas pese a analytical_result corregido | Cambio posterior de política de calidad y reconstrucción de la muestra sobre población comparable |
+| 3. Final; documentada 04/10/2026, ejecución sin commit inequívocamente registrado | 20 viajes completamente nuevos; cero solapamientos; anteriores al 20/08; cuatro estratos de cinco | Nueva población válida, nueva muestra y procedimiento de revisión | 95/95 = 100 %; claridad 4,00/5; 25 N/A; 0 fallos registrados; 170 expresiones comprobadas; 0 discrepancias materiales | Apoyo de ChatGPT, validación/aceptación del autor y comprobación mecánica numérica con Codex; no evaluador humano independiente | No consta repetición pendiente |
+
+La evidencia de reconstrucción de las evaluaciones 1–2 es la auditoría SQL:
+20/20 UNIQUE_MATCH, 20 viajes distintos, mismos estratos y orden. Las métricas
+relativas y estados permanecieron invariantes en los casos reconstruidos,
+aunque el bug alteraba magnitudes absolutas de consumo en 11 casos evaluables.
+
+### case_006 histórico y salvedad de la evaluación 2
+
+Fecha: **25/08/2026**; distancia: **12,782 km**, rango >10 y ≤20 km.
+**No era un viaje corto.** Relative_deviation corregida:
+`1189.5972035437394`; porcentaje correcto ≈**118959,72 %**.
+Luna expresó ≈**1189,6 %**; puntuación registrada C3=0 y claridad=3/5.
+Es un fallo de verbalización generativa, no del estado calculado por el detector.
+
+Además, la respuesta de case_006 conservada en
+`data/conversational_evaluation_corrected/luna_responses.json` y
+`luna_evaluation_scored.json` expresa 905 litros, 7080,27 L/100 km y baseline
+5,95 L/100 km. El analytical_result asociado registra respectivamente
+0,905 litros, 7,080269128461899 y 0,005946821567687135 L/100 km.
+Por eso **no se describe la evaluación 2 como regeneración completamente
+limpia**. Se preservan su resultado histórico y puntuaciones, con esta salvedad.
+
+El viaje deja de ser comparable para consumo bajo la política final por
+pertenecer al lote desde el 20/08, cuya discontinuidad no debe confundirse con
+el bug del adaptador. No pertenece a la muestra 3; el case_006 final es otro viaje.
+
+### Bug del adaptador y alcance de la invariancia
+
+`src/sql_repository.py`, `_to_analytical_row()`: la transformación antigua
+`float(consumption_liters) * 1000` se corrigió eliminando la multiplicación
+adicional antes de la normalización. Commit:
+`74ac4a61fc672ba1aeb582759fd2de7d8c29b686`.
+Un factor positivo común k cancela en `(kx−km)/(km)` y en
+`(kx−km)/(1,4826·k·MAD)`, conservando relative_deviation y robust_z y,
+en los casos auditados, estados, cobertura y señales de revisión. Las magnitudes
+absolutas entregadas al componente conversacional eran incorrectas; esta
+invariancia no equivale a ausencia general de efecto.
+
+**La evaluación 3 no demuestra una mejora cuantitativa del modelo respecto
+a la 2.** Cambian la muestra, la población válida y el procedimiento de revisión.
+La selección final se reconstruyó por la política de calidad, **no para mejorar
+la puntuación**.
+
+Fuentes: [auditoría histórica y salvedad](auditoria-correccion-conversacional.md);
+los resúmenes luna_evaluation_summary.json en las carpetas original y corregida;
+comparison.json y case_mapping_private.json de la auditoría SQL; y los
+artefactos finales citados en la sección 14. Las fechas de documentación no
+acreditan el instante exacto de ejecución remota.
+
 ## 9. Wilson bilateral descriptivo al 95 %
 
 Para x=95, n=95 y z=1,95996398454, p=x/n:
@@ -301,6 +361,9 @@ Para x=95, n=95 y z=1,95996398454, p=x/n:
 Intervalo [centro-semiancho, centro+semiancho], es decir **96.11351465 % a 100.00000000 %**, aproximadamente **96,1 % a 100 %**.
 
 Se denomina **«intervalo descriptivo calculado sobre los criterios aplicables»**.
+Redondeado a dos decimales para 95/95: **[96,11 %, 100 %]**.
+Para el resultado histórico 95/96, el Wilson bilateral 95 % es aproximadamente
+**[94,33 %, 99,82 %]**, también descriptivo.
 Los 95 criterios proceden de 20 casos y no deben interpretarse como 95
 observaciones independientes que permitan generalizar el rendimiento real del
 modelo. La muestra es funcional y estratificada; las puntuaciones de un mismo
@@ -390,13 +453,11 @@ este informe no las publica ni transcribe.
 
 Carpeta primaria final:
 `data/final_evaluation_2026_quality_exclusion_20261004/conversational_sample/`.
-Sus artefactos no se modificaron. Los documentos anteriores
-`metodologia.md`, `estado-validado-v1.md` y
-`auditoria-correccion-conversacional.md` conservan cifras de evaluaciones
-anteriores. En particular, la afirmación de aquella auditoría sobre cuáles
-eran las cifras definitivas corresponde a su cierre histórico; no prevalece
-sobre la muestra nueva tras la política de calidad. Este informe explicita la
-sucesión y aporta las cifras vigentes sin reescribir dichos archivos.
+Sus artefactos no se modificaron. `metodologia.md` y `estado-validado-v1.md`
+conservan cifras de evaluaciones históricas. La auditoría conversacional se
+actualiza documentalmente para distinguir su cierre anterior, la salvedad de
+case_006 y la nueva evaluación final. No se cambian sus puntuaciones ni fuentes
+históricas. Este informe explicita la sucesión y las cifras vigentes.
 
 No se dispone de una fuente dentro de docs/ que verifique de forma independiente
 el export operacional gpt-5-mini, el snapshot remoto o el HEAD de la generación

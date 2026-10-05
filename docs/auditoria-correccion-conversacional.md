@@ -1,11 +1,13 @@
 # Auditoría de corrección de escala y reevaluación conversacional cerrada
 
-Fecha de cierre: 3 de octubre de 2026 (Europe/Madrid).
+Fecha de cierre histórico: 3 de octubre de 2026 (Europe/Madrid).
+Actualización de trazabilidad: 5 de octubre de 2026.
 
-**Las cifras definitivas del TFM son las de la reevaluación corregida**:
-resultados analíticos corregidos, nuevas respuestas y nueva evaluación humana.
-Los resultados históricos se conservan como evidencia de trazabilidad; la
-coincidencia de sus métricas agregadas no sustituye la repetición realizada.
+**Las cifras definitivas corresponden a la evaluación 3**, realizada sobre
+una nueva muestra tras la política de calidad: 95/95 = 100 %, claridad 4,00/5.
+La repetición SQL descrita originalmente aquí es la **evaluación 2 histórica**,
+con resultado registrado 95/96 = 98,96 % y una salvedad en el artefacto de
+case_006. Se conservan sus puntuaciones sin reinterpretarlas retrospectivamente.
 
 ## Reconstrucción de los casos y corrección analítica
 
@@ -14,7 +16,10 @@ SQL: la conversión `float(Consumo) * 1000` introducía un factor adicional
 antes de la normalización. La corrección usa `float(Consumo)`, conservando
 NULL. Las magnitudes absolutas históricas de consumo eran incorrectas.
 Esta auditoría aborda su efecto sobre la evaluación conversacional histórica
-de 20 casos.
+de 20 casos. Archivo/función: `src/sql_repository.py`, `_to_analytical_row()`.
+La transformación antigua era `float(consumption_liters) * 1000`; la corrección
+elimina esa multiplicación adicional, conservando la normalización posterior.
+Commit: `74ac4a61fc672ba1aeb582759fd2de7d8c29b686` (25/09/2026).
 
 La herramienta `scripts/audit_conversational_sql_correction.py` se ejecutó
 contra SQL en el servidor remoto. Los artefactos recuperados en
@@ -57,6 +62,14 @@ La invariancia comprobada del detector en esta muestra no implica ausencia
 general de efectos del error de escala sobre las respuestas generadas ni
 sobre otros usos de las magnitudes absolutas.
 
+Con un factor común positivo k, `(kx−km)/(km) = (x−m)/m` y
+`(kx−km)/(1,4826·k·MAD) = (x−m)/(1,4826·MAD)`: el factor cancela en
+relative_deviation y robust_z. Esto explica los estados invariantes en los
+casos auditados, aunque las magnitudes entregadas al componente generativo
+eran incorrectas. No debe confundirse este bug con la discontinuidad posterior
+observada en el campo fuente Consumo desde el 20/08/2026, de causa y unidad
+no confirmadas.
+
 ## Repetición formal y evaluación humana
 
 La plantilla corregida se preparó desde
@@ -83,12 +96,12 @@ Las puntuaciones aceptadas se validaron e importaron mediante
 `evaluation.import_llm_review_scores`, y el resumen se calculó mediante
 `evaluation.summarize_llm_evaluation`.
 
-## Resultados definitivos
+## Resultados históricos registrados: evaluaciones 1 y 2
 
 Fuente: `data/conversational_evaluation_corrected/luna_evaluation_summary.json`,
 calculada desde `luna_evaluation_scored.json` de la misma carpeta.
 
-| Métrica | Histórico | Reevaluación corregida definitiva |
+| Métrica | Evaluación 1 original | Evaluación 2, corrección SQL |
 | --- | ---: | ---: |
 | Casos evaluados | 20 | 20 |
 | C1: estado global | 100 % | 100 % |
@@ -103,11 +116,36 @@ calculada desde `luna_evaluation_scored.json` de la misma carpeta.
 | Criterios sin puntuar | 0 | 0 |
 
 El cumplimiento global corresponde a 95 criterios cumplidos de 96 aplicables;
-los N/A se excluyen del denominador. El único fallo es **case_006, C3**:
+los N/A se excluyen del denominador. El único criterio incumplido registrado
+es **case_006, C3**:
 la respuesta convierte incorrectamente una desviación relativa extrema a
 porcentaje. Una desviación relativa de 1189.597 equivale aproximadamente a
 **118959.7 %**, no a 1189.6 %. Su claridad es 3/5; los otros 19 casos tienen
-claridad 4/5.
+claridad 4/5. El viaje histórico tiene fecha **25/08/2026** y distancia
+**12,782 km**, rango >10 y ≤20 km: **no era un viaje corto**.
+El valor corregido de relative_deviation es `1189.5972035437394`; el porcentaje
+correcto es aproximadamente **118959,72 %**. El fallo es de verbalización del
+componente generativo, no del estado REVIEW calculado por el detector.
+
+### Salvedad del artefacto conservado de case_006
+
+La revisión documental posterior detectó que, en
+`data/conversational_evaluation_corrected/luna_evaluation_scored.json`, el
+analytical_result de case_006 contiene consumo total 0,905 L, observado
+7,080269128461899 L/100 km y baseline 0,005946821567687135 L/100 km.
+Sin embargo, su respuesta conservada, también presente en luna_responses.json,
+verbaliza **905 litros**, **7080,27 L/100 km** y **5,95 L/100 km**: magnitudes
+absolutas antiguas. La corrección de la entrada analítica no acredita una
+regeneración completamente limpia de la explicación conservada.
+
+El resultado 95/96 y el único criterio C3 incumplido son los **registrados**;
+no se cambian puntuaciones, respuestas ni artefactos históricos. Esta salvedad
+debe acompañar cualquier presentación de la evaluación 2.
+
+Si se presenta un intervalo para 95/96, el Wilson bilateral 95 % es
+aproximadamente **[94,33 %, 99,82 %]**, descriptivo sobre criterios aplicables.
+Estos criterios proceden de 20 casos y no se consideran observaciones
+independientes para generalizar el rendimiento del modelo.
 
 La comparación completa de los resúmenes histórico y corregido no presenta
 diferencias agregadas, tampoco por estrato. Esta coincidencia procede de
@@ -115,6 +153,32 @@ las nuevas puntuaciones humanas aceptadas y del cálculo del script; no se
 adaptaron los resultados para reproducir las cifras históricas. Tampoco
 implica que las respuestas sean textualmente idénticas o que la corrección
 de las magnitudes absolutas fuese innecesaria.
+
+## Cronología y evaluación 3 final
+
+| Evaluación | Muestra | Cambio respecto a anterior | Resultado | Incidencia/limitación | Motivo de la siguiente evaluación |
+|---|---|---|---|---|---|
+| 1. Original; documentada 04/09/2026 | 20 casos, cuatro estratos de cinco; GPT-5.6-LUNA | Primera evaluación; adaptador SQL con ×1000 adicional | 95/96 = 98,96 %; C3 19/20; claridad 3,95/5 | Magnitudes absolutas incorrectas; fallo porcentual de case_006 | Corregir SQL y repetir sobre los mismos viajes |
+| 2. Corrección SQL; cierre 03/10/2026 | Exactamente los mismos 20 viajes; GPT-5.6-LUNA, mismo prompt/workflow | Adaptador e inputs corregidos; repetición registrada | 95/96 = 98,96 %; claridad 3,95/5 | Único criterio incumplido registrado: C3 de case_006; su respuesta conservada usa absolutos antiguos | Política de calidad cambia la población comparable y exige reconstruir la muestra |
+| 3. Final; documentada 04/10/2026 | 20 viajes nuevos, cero solapamientos; todos anteriores al 20/08; cuatro estratos de cinco; GPT-5.6-LUNA | Nueva población válida y selección determinista tras la política de calidad | 95/95 = 100 %; claridad 4,00/5; 25 N/A; 0 fallos registrados; 170 expresiones comprobadas y 0 discrepancias materiales | Muestra funcional; revisión con apoyo de ChatGPT, aceptación del autor y comprobación numérica con Codex; no evaluación humana independiente | No consta otra evaluación pendiente |
+
+La discontinuidad de Consumo desde el 20/08 hace que el viaje histórico
+case_006 deje de ser comparable para consumo bajo la política final. Temporal
+se conserva; ese viaje no pertenece a la nueva muestra. Los case_id se reutilizan
+como etiquetas locales: el case_006 final corresponde a otro viaje.
+
+**La evaluación 3 no demuestra una mejora cuantitativa del modelo respecto
+a la 2.** Cambian muestra, población válida y procedimiento de revisión.
+La muestra final se reconstruyó por el cambio de política de calidad,
+**no para mejorar la puntuación**. Wilson descriptivo de 95/95:
+**[96,11 %, 100 %]**, sin interpretar los 95 criterios de 20 casos como
+observaciones independientes.
+
+Fuentes finales: `data/final_evaluation_2026_quality_exclusion_20261004/`,
+`final_evaluation_quality_exclusion.json` y, en `conversational_sample/`,
+cases.json, case_mapping_private.json, luna_evaluation_summary.json y
+numeric_fidelity_verification.json. Véase también el
+[informe de trazabilidad para memoria](informe-trazabilidad-para-memoria.md).
 
 ## Limitaciones y conservación de evidencia
 
