@@ -19,7 +19,7 @@ Esta auditoría aborda su efecto sobre la evaluación conversacional histórica
 de 20 casos. Archivo/función: `src/sql_repository.py`, `_to_analytical_row()`.
 La transformación antigua era `float(consumption_liters) * 1000`; la corrección
 elimina esa multiplicación adicional, conservando la normalización posterior.
-Commit: `74ac4a61fc672ba1aeb582759fd2de7d8c29b686` (25/09/2026).
+Commit: `77e4bb54efc6827713ef3ce7123f29f9241e92d4` (25/09/2026).
 
 La herramienta `scripts/audit_conversational_sql_correction.py` se ejecutó
 contra SQL en el servidor remoto. Los artefactos recuperados en

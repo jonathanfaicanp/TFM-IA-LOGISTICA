@@ -18,16 +18,16 @@ B significa estudiada o seleccionada mirando 2026, no necesariamente que podamos
 
 | Decisi?n | Clase | Evidencia y alcance |
 | --- | --- | --- |
-| A por veh?culo frente a contexto | B | `evaluate_baseline_strategies.py` usa 2024?2025, pero `evaluate_2026_baseline_strategies.py` compara las mismas estrategias sobre 2026. `decision-log.md`, evoluci?n A/B30/B50, y versi?n `1c5a3cb` documentan preferencia todav?a provisional despu?s de esas evaluaciones. |
+| A por veh?culo frente a contexto | B | `evaluate_baseline_strategies.py` usa 2024?2025, pero `evaluate_2026_baseline_strategies.py` compara las mismas estrategias sobre 2026. `decision-log.md`, evoluci?n A/B30/B50, y versi?n `7e7abe4` documentan preferencia todav?a provisional despu?s de esas evaluaciones. |
 | B30 frente a B50 | B | Mismos scripts y documento. Haber hecho tambi?n 2024?2025 no acredita selecci?n exclusiva sin 2026. |
-| M?nimo hist?rico 100 | C | `45d70e3:docs/decision-log.md`, criterio inicial, fija 100 y permite revisarlo tras estudiar estabilidad; `analyze_distance_ranges.ps1` y `DistanceRangeAggregation.cs` aplican 100 solo sobre 2024?2025. No consta comparaci?n de m?nimos ni prueba de informaci?n exclusivamente anterior a 2026: la exploraci?n inicial ya inclu?a los tres a?os. No se demuestra selecci?n por m?tricas de 2026 ni selecci?n independiente de ellas. |
+| M?nimo hist?rico 100 | C | `6aa96d0:docs/decision-log.md`, criterio inicial, fija 100 y permite revisarlo tras estudiar estabilidad; `analyze_distance_ranges.ps1` y `DistanceRangeAggregation.cs` aplican 100 solo sobre 2024?2025. No consta comparaci?n de m?nimos ni prueba de informaci?n exclusivamente anterior a 2026: la exploraci?n inicial ya inclu?a los tres a?os. No se demuestra selecci?n por m?tricas de 2026 ni selecci?n independiente de ellas. |
 | M?nimo contextual 30 | B | Es el par?metro de B30 comparado con B50 en 2026. `analyze_b30_mad.py` y `analyze_duration_distance_feasibility.py` examinan cobertura/viabilidad con 30 sobre 2026. |
 | Regla relativa D1 | B | `evaluate_detector_candidates.py`, cinco cortes en controles de 2026; `evaluate_synthetic_benchmark.py`, perturbaciones del mismo a?o. |
 | Regla robust z D2 | B | Mismos scripts; `analyze_b30_mad.py` y `analyze_b30_mad_extremes.py` analizan sus colas en 2026. |
 | AND/OR | B | `scenario_definitions()` y `RULES` en candidatos y ambos benchmarks; los cargadores originales construyen 2024?2025 y eval?an 2026. |
-| relative_deviation >0,50 | B | `7581bbc:docs/decision-log.md`, decisi?n provisional del detector, justifica la candidata con resultados semi-sint?ticos de 2026. `73935a5` la declara definitiva. |
+| relative_deviation >0,50 | B | `b65716e:docs/decision-log.md`, decisi?n provisional del detector, justifica la candidata con resultados semi-sint?ticos de 2026. `8192152` la declara definitiva. |
 | robust_z >2 | B | Misma justificaci?n y comparaci?n con 3 y 5; el documento hist?rico dice expresamente que las distribuciones no justificaban por s? mismas un corte. |
-| Distancia temporal >1 km | B | `analyze_temporal_robustness.py` compara <=1 y >1 sobre 2026; `73935a5:docs/decision-log.md`, DetectorTemporalV1, usa inestabilidad del primer grupo para excluirlo. `analyze_duration_distance_feasibility.py` mezcla los tres a?os en distribuciones por rango. |
+| Distancia temporal >1 km | B | `analyze_temporal_robustness.py` compara <=1 y >1 sobre 2026; `8192152:docs/decision-log.md`, DetectorTemporalV1, usa inestabilidad del primer grupo para excluirlo. `analyze_duration_distance_feasibility.py` mezcla los tres a?os en distribuciones por rango. |
 
 No hay decisi?n de esta lista para la que pueda acreditarse la categor?a A en su sentido estricto de **selecci?n exclusivamente sin informaci?n de 2026**. El m?nimo 100 s? tiene antecedentes aplicados a hist?rico; eso no prueba su procedencia exclusiva.
 

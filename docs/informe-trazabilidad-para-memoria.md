@@ -298,8 +298,8 @@ de detección real de ineficiencia ni una evaluación de otra población.
 
 | Evaluación | Muestra | Cambio respecto a anterior | Resultado | Incidencia/limitación | Motivo de la siguiente evaluación |
 |---|---|---|---|---|---|
-| 1. Original; documentada 04/09/2026, commit d78d816 | 20 casos, cuatro estratos de cinco; GPT-5.6-LUNA | Primera evaluación con adaptador SQL que multiplicaba adicionalmente ×1000 | 95/96 = 98,96 %; C3 19/20; claridad 3,95/5 | Absolutos de consumo incorrectos; un criterio incumplido registrado en case_006 | Corrección del adaptador y repetición sobre los mismos viajes |
-| 2. Corrección SQL; cierre documental 03/10/2026, commit 7b4042f | Exactamente los mismos 20 viajes; GPT-5.6-LUNA, mismo prompt/workflow | Adaptador corregido y resultados analíticos reconstruidos | 95/96 = 98,96 %; claridad 3,95/5 | C3 de case_006: único criterio incumplido registrado; respuesta conservada con magnitudes absolutas antiguas pese a analytical_result corregido | Cambio posterior de política de calidad y reconstrucción de la muestra sobre población comparable |
+| 1. Original; documentada 04/09/2026, commit 42b6a7e | 20 casos, cuatro estratos de cinco; GPT-5.6-LUNA | Primera evaluación con adaptador SQL que multiplicaba adicionalmente ×1000 | 95/96 = 98,96 %; C3 19/20; claridad 3,95/5 | Absolutos de consumo incorrectos; un criterio incumplido registrado en case_006 | Corrección del adaptador y repetición sobre los mismos viajes |
+| 2. Corrección SQL; cierre documental 03/10/2026, commit 64d1079 | Exactamente los mismos 20 viajes; GPT-5.6-LUNA, mismo prompt/workflow | Adaptador corregido y resultados analíticos reconstruidos | 95/96 = 98,96 %; claridad 3,95/5 | C3 de case_006: único criterio incumplido registrado; respuesta conservada con magnitudes absolutas antiguas pese a analytical_result corregido | Cambio posterior de política de calidad y reconstrucción de la muestra sobre población comparable |
 | 3. Final; documentada 04/10/2026, ejecución sin commit inequívocamente registrado | 20 viajes completamente nuevos; cero solapamientos; anteriores al 20/08; cuatro estratos de cinco | Nueva población válida, nueva muestra y procedimiento de revisión | 95/95 = 100 %; claridad 4,00/5; 25 N/A; 0 fallos registrados; 170 expresiones comprobadas; 0 discrepancias materiales | Apoyo de ChatGPT, validación/aceptación del autor y comprobación mecánica numérica con Codex; no evaluador humano independiente | No consta repetición pendiente |
 
 La evidencia de reconstrucción de las evaluaciones 1–2 es la auditoría SQL:
@@ -332,7 +332,7 @@ el bug del adaptador. No pertenece a la muestra 3; el case_006 final es otro via
 `src/sql_repository.py`, `_to_analytical_row()`: la transformación antigua
 `float(consumption_liters) * 1000` se corrigió eliminando la multiplicación
 adicional antes de la normalización. Commit:
-`74ac4a61fc672ba1aeb582759fd2de7d8c29b686`.
+`77e4bb54efc6827713ef3ce7123f29f9241e92d4`.
 Un factor positivo común k cancela en `(kx−km)/(km)` y en
 `(kx−km)/(1,4826·k·MAD)`, conservando relative_deviation y robust_z y,
 en los casos auditados, estados, cobertura y señales de revisión. Las magnitudes
@@ -388,19 +388,19 @@ comprobación y el origen de las puntuaciones; no acredita un evaluador externo.
 ## 11. Tag y commits: significado y límites
 
 `v1.0-tfm` es un tag anotado. Objeto tag:
-`03c6f9f2089af7e7dafdcbdc2cbb4a0aa56f3994`.
-**Commit al que apunta:** `8a57795035a4b879d6f9e0255bf7f4284c249653`
+`3e8dca8093b0b69fb362532cd3f99a4afe2de84a`.
+**Commit al que apunta:** `7b5e57c44c699996016590b7430d1b0f9e60a505`
 (7/09/2026), «Add validated prototype v1 state for thesis writing».
 `git rev-parse v1.0-tfm` devuelve el objeto tag; para el commit se usó
 `git rev-parse 'v1.0-tfm^{commit}'`.
 
 | Etapa | Evidencia Git | Qué acredita / qué no acredita |
 |---|---|---|
-| A. Versión del motor analítico | Tag v1.0-tfm, commit 8a577950… | Snapshot histórico del prototipo y sus resultados documentados; no acredita la nueva muestra final ni su ejecución Luna |
-| Corrección posterior del adaptador | 74ac4a6, «Fix SQL consumption unit normalization» | Corrección SQL posterior al tag; no debe confundirse adaptador con cambio de regla del detector |
-| B. Congelación metodológica | 9bbc927a62a85fbe4a92377731240891bb7e1a28, «Freeze methodology using 2024-2025 validation» (2/10/2026) | Protocolo, validación 2025 y configuración congelada; no elimina exposición exploratoria previa a 2026 |
+| A. Versión del motor analítico | Tag v1.0-tfm, commit 7b5e57c4… | Snapshot histórico del prototipo y sus resultados documentados; no acredita la nueva muestra final ni su ejecución Luna |
+| Corrección posterior del adaptador | 77e4bb5, «Fix SQL consumption unit normalization» | Corrección SQL posterior al tag; no debe confundirse adaptador con cambio de regla del detector |
+| B. Congelación metodológica | fdde83d9ee5744b72d044e6628ee85db619c264e, «Freeze methodology using 2024-2025 validation» (2/10/2026) | Protocolo, validación 2025 y configuración congelada; no elimina exposición exploratoria previa a 2026 |
 | C. Ejecución conversacional definitiva | Artefactos privados finales y workflow documentado | Modelo etiquetado, respuestas y puntuaciones; **no registran el HEAD/commit de ejecución**, por lo que no puede determinarse inequívocamente |
-| D. Cambios posteriores de evaluación/documentación | 4f8532edeabf2f2314ebd777de193dea4d93080c, «Refine benchmark metrics and operational workload» | Nomenclatura y cálculo emparejado del benchmark, tests y documentación; no versión original de generación de las respuestas ni cambio del detector |
+| D. Cambios posteriores de evaluación/documentación | a3ddcb76c6873c934cd6fc538717d50acd636b62, «Refine benchmark metrics and operational workload» | Nomenclatura y cálculo emparejado del benchmark, tests y documentación; no versión original de generación de las respuestas ni cambio del detector |
 
 Entre el commit del tag y el HEAD actual, `src/detector.py`,
 `src/temporal_detector.py`, `src/baseline.py` y `src/data_processing.py` no
@@ -411,7 +411,7 @@ fuentes, políticas de preparación o ejecución conversacional.
 
 La nueva política de calidad y sus resultados privados son posteriores al
 tag. No se atribuye la evaluación conversacional definitiva a v1.0-tfm,
-9bbc927 o 4f8532e sin evidencia de ejecución. Las fechas de archivos o el
+fdde83d o a3ddcb7 sin evidencia de ejecución. Las fechas de archivos o el
 HEAD conocido durante esta revisión no reemplazan un manifiesto de ejecución.
 Fuente documental histórica: [estado-validado-v1.md](estado-validado-v1.md);
 congelación: [configuracion-congelada-validacion-2025.md](configuracion-congelada-validacion-2025.md).
